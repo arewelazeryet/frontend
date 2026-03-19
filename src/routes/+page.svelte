@@ -8,6 +8,23 @@
     const peakRel = data.peakRel;
 </script>
 
+<svelte:head>
+    <meta
+        property="og:title"
+        content="StableDeath - osu lazer user share tracker"
+    />
+    <meta property="og:type" content="website" />
+    {#if changelogs}
+        <meta
+            property="og:description"
+            content="Currently the percentage is {Math.round(
+                (changelogs.lazer / (changelogs.stable + changelogs.lazer)) *
+                    10000.0,
+            ) / 100}%"
+        />
+    {/if}
+</svelte:head>
+
 <div class="app">
     <div class="contents">
         <h1>lazer vs stable user counts</h1>
@@ -27,9 +44,9 @@
             {#if peak}
                 <div class="bar">
                     <h3>
-                        lazer user count peak (at {new Date(peak.timestamp).toLocaleString(
-                            "en-UK",
-                        )})
+                        lazer user count peak (at {new Date(
+                            peak.timestamp,
+                        ).toLocaleString("en-UK")})
                     </h3>
                     <Bars stable={peak.stable} lazer={peak.lazer} />
                 </div>
@@ -60,8 +77,12 @@
         margin: 0;
     }
 
-    h1 { text-align: center }
-    h3 { margin: 0 }
+    h1 {
+        text-align: center;
+    }
+    h3 {
+        margin: 0;
+    }
 
     .app {
         display: flex;
