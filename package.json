@@ -1,8 +1,27 @@
 {
-    "type": "module",
-    "dependencies": {
-        "@libsql/client": "^0.17.0",
-        "drizzle-kit": "^0.31.8",
-        "drizzle-orm": "^0.45.1"
-    }
+  "name": "stabledeath",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "start": "bun ./build/index.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "drizzle-kit": "^0.31.8",
+    "drizzle-orm": "^0.45.1",
+    "osu-api-v2-js": "^3.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^5.5.1",
+    "@sveltejs/kit": "^2.50.0",
+    "@sveltejs/vite-plugin-svelte": "^6.2.0",
+    "svelte": "^5.38.10",
+    "svelte-check": "^4.3.5",
+    "vite": "^7.1.5"
+  }
 }

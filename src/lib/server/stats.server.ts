@@ -1,4 +1,3 @@
-import "./osu-api-timers-shim.server.ts";
 import * as osu from "osu-api-v2-js";
 import { OSU_API_CLIENT_ID, OSU_API_CLIENT_SECRET } from "$env/static/private";
 import { measurementsTable } from "../db/schema.ts";
@@ -16,7 +15,12 @@ function getDb() {
 const client_id = parseInt(OSU_API_CLIENT_ID);
 const client_secret = OSU_API_CLIENT_SECRET;
 
-const client = await osu.API.createAsync(client_id, client_secret);
+let apiClientPromise: ReturnType<typeof osu.API.createAsync> | null = null;
+function getApiClient() {
+    apiClientPromise ??= osu.API.createAsync(client_id, client_secret);
+    return apiClientPromise;
+}
+
 let latestData: typeof measurementsTable.$inferSelect | null = null;
 let latestCheck: number = 0;
 
@@ -70,6 +74,7 @@ export async function getChangelogDataApi(timestamp: number): Promise<{
 } | null> {
     let changelogs: Array<{ name: string; user_count: number }> = [];
     try {
+        const client = await getApiClient();
         changelogs = await client.getChangelogStreams();
     } catch {
         return null;
