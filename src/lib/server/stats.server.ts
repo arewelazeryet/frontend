@@ -1,5 +1,5 @@
 import * as osu from "osu-api-v2-js";
-import { OSU_API_CLIENT_ID, OSU_API_CLIENT_SECRET } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { measurementsTable } from "../db/schema.ts";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
@@ -12,12 +12,20 @@ function getDb() {
     return _db;
 }
 
-const client_id = parseInt(OSU_API_CLIENT_ID);
-const client_secret = OSU_API_CLIENT_SECRET;
-
 let apiClientPromise: ReturnType<typeof osu.API.createAsync> | null = null;
 function getApiClient() {
-    apiClientPromise ??= osu.API.createAsync(client_id, client_secret);
+    const clientId = Number.parseInt(env.OSU_API_CLIENT_ID ?? "", 10);
+    const clientSecret = env.OSU_API_CLIENT_SECRET;
+
+    if (!Number.isFinite(clientId)) {
+        throw new Error("Missing OSU_API_CLIENT_ID");
+    }
+
+    if (!clientSecret) {
+        throw new Error("Missing OSU_API_CLIENT_SECRET");
+    }
+
+    apiClientPromise ??= osu.API.createAsync(clientId, clientSecret);
     return apiClientPromise;
 }
 
@@ -76,7 +84,8 @@ export async function getChangelogDataApi(timestamp: number): Promise<{
     try {
         const client = await getApiClient();
         changelogs = await client.getChangelogStreams();
-    } catch {
+    } catch (err) {
+        console.log("Failed to fetch changelog data", err);
         return null;
     }
     const stable =
