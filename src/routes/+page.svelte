@@ -1,6 +1,7 @@
 <script lang="ts">
     import Bars from "$components/Bars.svelte";
     import Footer from "$components/Footer.svelte";
+    import Graph from "$components/Graph.svelte";
 
     const { data } = $props();
 
@@ -8,6 +9,9 @@
     const peak = data.peak;
     const peakRel = data.peakRel;
     const peakNear = data.nearPeak;
+    const userCount = data.userCountData;
+    const userRatio = data.userRatioData;
+    // console.log(data.userCountData);
 </script>
 
 <svelte:head>
@@ -70,6 +74,7 @@
                 </div>
             {/if}
         </div>
+        <Graph {userCount} {userRatio} />
         <Footer />
     </div>
 </div>
@@ -82,7 +87,6 @@
     }
 
     :root {
-        overflow: hidden;
         font-family: "Nunito Sans", sans-serif;
         font-optical-sizing: auto;
         font-style: normal;
@@ -113,8 +117,7 @@
         justify-content: center;
         align-items: center;
         width: 100vw;
-        height: 100vh;
-        overflow-y: auto;
+        overflow-y: scroll;
     }
 
     .contents {

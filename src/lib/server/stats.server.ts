@@ -104,7 +104,7 @@ export async function getChangelogDataApi(timestamp: number): Promise<{
     return { timestamp: timestamp, stable: stable, lazer: lazer };
 }
 
-export async function getLazerAbsolutePeak() {
+export async function getLazerAbsolutePeak(): Promise<ChangelogData> {
     const result = await getDb()
         .select()
         .from(measurementsTable)
@@ -112,7 +112,7 @@ export async function getLazerAbsolutePeak() {
             sql`${measurementsTable.lazer} = (SELECT MAX(${measurementsTable.lazer}) FROM ${measurementsTable})`,
         );
 
-    const peakLazer = result[0];
+    const peakLazer = result[0] as ChangelogData;
     return peakLazer;
 }
 
@@ -132,7 +132,7 @@ export async function getLazerRelativePeak() {
     return peakLazer;
 }
 
-export async function getLazerPeakNearTopPercentage() {
+export async function getLazerPeakNearTopPercentage(): Promise<ChangelogData> {
     const maxPercentageResult = await getDb()
         .select({
             maxPercentage: sql<number>`MAX(CAST(${measurementsTable.lazer} AS REAL) / (${measurementsTable.stable} + ${measurementsTable.lazer}))`,
@@ -155,6 +155,120 @@ export async function getLazerPeakNearTopPercentage() {
         .orderBy(sql`${measurementsTable.lazer} DESC`)
         .limit(1);
 
-    const peakLazer = result[0];
+    const peakLazer = result[0] as ChangelogData;
     return peakLazer;
+}
+
+type UserGraph = {
+    timestamps: number[];
+    stable: number[];
+    lazer: number[];
+};
+
+type RatioGraph = {
+    timestamps: number[];
+    ratio: number[];
+};
+
+let latestUserGraph: UserGraph | null = null;
+let latestRatioGraph: RatioGraph | null = null;
+
+export async function getUserCountGraph(): Promise<UserGraph> {
+    if (latestUserGraph && latestCheck > Date.now() - 300000) {
+        return latestUserGraph;
+    }
+    const result = await getDb()
+        .select({
+            minTimestamp: sql<number>`MIN(${measurementsTable.timestamp})`,
+            maxTimestamp: sql<number>`MAX(${measurementsTable.timestamp})`,
+        })
+        .from(measurementsTable);
+
+    const { minTimestamp, maxTimestamp } = result[0];
+
+    const bucketSize = Math.max(
+        300,
+        Math.round((maxTimestamp - minTimestamp) / 300),
+    );
+
+    const rows = await getDb().all<ChangelogData>(sql`
+        WITH bucketed AS (
+            SELECT
+            timestamp,
+            stable,
+            lazer,
+            CAST(timestamp / ${sql.raw(bucketSize.toString())} AS INTEGER) AS bucket
+            FROM measurements
+        ),
+        bucket_min AS (
+            SELECT bucket, MIN(timestamp) AS min_timestamp
+            FROM bucketed
+            GROUP BY bucket
+        )
+        SELECT b.timestamp, b.stable, b.lazer
+        FROM bucketed b
+        JOIN bucket_min bm ON b.bucket = bm.bucket AND b.timestamp = bm.min_timestamp
+        ORDER BY b.timestamp
+        `);
+
+    latestUserGraph = rows.reduce(
+        (acc, d) => {
+            acc.timestamps.push(d.timestamp / 1000);
+            acc.stable.push(d.stable);
+            acc.lazer.push(d.lazer);
+            return acc;
+        },
+        {
+            timestamps: [] as number[],
+            stable: [] as number[],
+            lazer: [] as number[],
+        },
+    );
+    return latestUserGraph;
+}
+
+export async function getUserRatioGraph(): Promise<RatioGraph> {
+    if (latestRatioGraph && latestCheck > Date.now() - 300000) {
+        return latestRatioGraph;
+    }
+    const result = await getDb()
+        .select({
+            minTimestamp: sql<number>`MIN(${measurementsTable.timestamp})`,
+            maxTimestamp: sql<number>`MAX(${measurementsTable.timestamp})`,
+        })
+        .from(measurementsTable);
+
+    const { minTimestamp, maxTimestamp } = result[0];
+
+    const bucketSize = Math.max(
+        300,
+        Math.round((maxTimestamp - minTimestamp) / 300),
+    );
+    const rows = await getDb().all<{ timestamp: number; ratio: number }>(sql`
+      WITH bucketed AS (
+        SELECT
+          timestamp,
+          CAST(lazer AS REAL) / (stable + lazer) AS ratio,
+          CAST(timestamp / ${bucketSize} AS INTEGER) AS bucket
+        FROM measurements
+        WHERE (stable + lazer) > 0
+      ),
+      bucket_max AS (
+        SELECT bucket, MAX(ratio) AS max_ratio
+        FROM bucketed
+        GROUP BY bucket
+      )
+      SELECT b.timestamp, b.ratio
+      FROM bucketed b
+      JOIN bucket_max bm ON b.bucket = bm.bucket AND b.ratio = bm.max_ratio
+      ORDER BY b.timestamp`);
+    latestRatioGraph = rows.reduce(
+        (acc, d) => {
+            acc.timestamps.push(d.timestamp / 1000);
+            acc.ratio.push(d.ratio);
+            return acc;
+        },
+        { timestamps: [] as number[], ratio: [] as number[] },
+    );
+    return latestRatioGraph;
 }

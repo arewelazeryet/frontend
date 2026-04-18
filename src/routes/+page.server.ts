@@ -4,6 +4,8 @@ import {
     getLazerAbsolutePeak,
     getLazerPeakNearTopPercentage,
     getLazerRelativePeak,
+    getUserCountGraph,
+    getUserRatioGraph,
 } from "../lib/server/stats.server.ts";
 
 export const load = async () => {
@@ -12,5 +14,7 @@ export const load = async () => {
         peak: await getLazerAbsolutePeak(),
         peakRel: await getLazerRelativePeak(),
         nearPeak: await getLazerPeakNearTopPercentage(),
+        userCountData: await getUserCountGraph(),
+        userRatioData: await getUserRatioGraph(),
     };
 };
