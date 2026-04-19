@@ -79,9 +79,7 @@
                     grid: { stroke: c.grid },
                     ticks: { stroke: c.border },
                     values: (_u, vals) =>
-                        vals.map((v) =>
-                            v != null ? `${(v * 100).toFixed(1)}%` : "",
-                        ),
+                        vals.map((v) => (v != null ? `${v.toFixed(1)}%` : "")),
                 },
             ],
         };
