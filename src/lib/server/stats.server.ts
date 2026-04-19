@@ -265,7 +265,7 @@ export async function getUserRatioGraph(): Promise<RatioGraph> {
     latestRatioGraph = rows.reduce(
         (acc, d) => {
             acc.timestamps.push(d.timestamp / 1000);
-            acc.ratio.push(d.ratio);
+            acc.ratio.push(d.ratio * 100);
             return acc;
         },
         { timestamps: [] as number[], ratio: [] as number[] },

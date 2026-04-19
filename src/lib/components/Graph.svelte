@@ -65,7 +65,7 @@
             width,
             height: 380,
             scales: {
-                y: { min: 0, max: 1 },
+                y: { min: 0, max: 100 },
             },
             series: [{}, { label: "lazer %", stroke: "#ff66aa", width: 2 }],
             axes: [
