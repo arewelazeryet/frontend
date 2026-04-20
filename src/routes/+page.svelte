@@ -14,10 +14,13 @@
     const peakNear = data.nearPeak;
     const userCount = data.userCountData;
     const userRatio = data.userRatioData;
+    const ratio =
+        Math.round(
+            (changelogs.lazer / (changelogs.stable + changelogs.lazer)) * 10000,
+        ) / 100;
 
+    console.log(ratio);
     const areWeYet = () => {
-        const { lazer, stable } = changelogs;
-        const ratio = Math.round(lazer / (stable + lazer)) * 10000.0;
         if (ratio < 50.0) {
             return "Not yet, but we're getting there";
         }
@@ -28,13 +31,13 @@
     };
 
     const opengraphHeader = () => {
-        const { lazer, stable } = changelogs;
-        const ratio = Math.round(lazer / (stable + lazer)) * 10000.0;
+        console.log(ratio);
         const areWeYet =
             ratio < 50.0 ? "we are not lazer yet" : "we are lazer now";
-        const start = `Currently the percentage is ${ratio}. ${areWeYet}`;
+        const start = `Currently the percentage is ${ratio}%. ${areWeYet}`;
         return start;
     };
+    opengraphHeader();
     // console.log(data.userCountData);
 </script>
 
