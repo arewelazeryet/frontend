@@ -68,7 +68,7 @@
         <div class="bars">
             {#if changelogs}
                 <BarBlock stable={changelogs.stable} lazer={changelogs.lazer}>
-                    current (last check was at {new Date(
+                    current (as of {new Date(
                         changelogs.timestamp,
                     ).toLocaleString("en-UK")})
                 </BarBlock>
