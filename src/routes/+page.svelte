@@ -1,25 +1,37 @@
 <script lang="ts">
+    import { invalidateAll } from "$app/navigation";
     import BarBlock from "$components/BarBlock.svelte";
     import Bars from "$components/Bars.svelte";
     import Footer from "$components/Footer.svelte";
     import Graph from "$components/Graph.svelte";
     import Milestone from "$components/Milestone.svelte";
     import MilestoneList from "$components/MilestoneList.svelte";
+    import { onMount } from "svelte";
 
-    const { data } = $props();
+    let { data } = $props();
 
-    const changelogs = data.changelogs;
-    const peak = data.peak;
-    const peakRel = data.peakRel;
-    const peakNear = data.nearPeak;
-    const userCount = data.userCountData;
-    const userRatio = data.userRatioData;
-    const ratio =
+    const changelogs = $derived(data.changelogs);
+    const peak = $derived(data.peak);
+    const peakRel = $derived(data.peakRel);
+    const nearPeak = $derived(data.nearPeak);
+    const userCountData = $derived(data.userCountData);
+    const userRatioData = $derived(data.userRatioData);
+
+    onMount(() => {
+        const interval = setInterval(() => {
+            invalidateAll();
+        }, 150000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    });
+    const ratio = $derived(
         Math.round(
             (changelogs.lazer / (changelogs.stable + changelogs.lazer)) * 10000,
-        ) / 100;
+        ) / 100,
+    );
 
-    console.log(ratio);
     const areWeYet = () => {
         if (ratio < 50.0) {
             return "Not yet, but we're getting there";
@@ -74,16 +86,16 @@
                         peakRel.timestamp,
                     ).toLocaleString("en-UK")})
                 </BarBlock>
-                <BarBlock stable={peakNear.stable} lazer={peakNear.lazer}>
+                <BarBlock stable={nearPeak.stable} lazer={nearPeak.lazer}>
                     lazer user count peak near highest percentage (at {new Date(
-                        peakNear.timestamp,
+                        nearPeak.timestamp,
                     ).toLocaleString("en-UK")})
                 </BarBlock>
             {/if}
         </div>
         <MilestoneList />
         <h2>Historical statistics</h2>
-        <Graph {userCount} {userRatio} />
+        <Graph userCount={userCountData} userRatio={userRatioData} />
         <Footer />
     </div>
 </div>

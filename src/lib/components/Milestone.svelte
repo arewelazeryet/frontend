@@ -1,6 +1,8 @@
 <script lang="ts">
     let { row, date, children } = $props();
+    // svelte-ignore state_referenced_locally
     let displayDate = date ? new Date(date).toLocaleDateString("en-GB") : "TBD";
+    // svelte-ignore state_referenced_locally
     let succeeded = date ? true : false;
 </script>
 
