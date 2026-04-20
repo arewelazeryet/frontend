@@ -51,29 +51,30 @@ type ChangelogData = {
 };
 
 export async function getChangelogData() {
-    if (!latestData || latestCheck < Date.now() - 300000) {
-        console.log("Triggered an update");
-        latestCheck = Date.now();
-        let data: ChangelogData | null = null;
-        const timeout = (ms: number) =>
-            new Promise<never>((_, reject) =>
-                setTimeout(
-                    () => reject(new Error("Changelog request timed out")),
-                    ms,
-                ),
-            );
-        try {
-            data = await Promise.race<ChangelogData | null>([
-                getChangelogDataApi(latestCheck),
-                timeout(1000),
-            ]);
-        } catch (err) {
-            console.log(err);
-            return latestData;
-        }
-        if (data !== null) {
-            latestData = data;
-        }
+    if (latestData && latestCheck > Date.now() - 300000) {
+        return latestData;
+    }
+    console.log("Triggered an update");
+    latestCheck = Date.now();
+    let data: ChangelogData | null = null;
+    const timeout = (ms: number) =>
+        new Promise<never>((_, reject) =>
+            setTimeout(
+                () => reject(new Error("Changelog request timed out")),
+                ms,
+            ),
+        );
+    try {
+        data = await Promise.race<ChangelogData | null>([
+            getChangelogDataApi(latestCheck),
+            timeout(1000),
+        ]);
+    } catch (err) {
+        console.log(err);
+        return latestData;
+    }
+    if (data !== null) {
+        latestData = data;
     }
     return latestData;
 }
