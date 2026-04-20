@@ -1,4 +1,5 @@
 <script lang="ts">
+    import BarBlock from "$components/BarBlock.svelte";
     import Bars from "$components/Bars.svelte";
     import Footer from "$components/Footer.svelte";
     import Graph from "$components/Graph.svelte";
@@ -17,7 +18,7 @@
 <svelte:head>
     <meta
         property="og:title"
-        content="StableDeath - osu lazer user share tracker"
+        content="arewelazeryet - osu!lazer user share tracker"
     />
     <meta property="og:type" content="website" />
     {#if changelogs}
@@ -26,7 +27,13 @@
             content="Currently the percentage is {Math.round(
                 (changelogs.lazer / (changelogs.stable + changelogs.lazer)) *
                     10000.0,
-            ) / 100}%"
+            ) / 100}%\nWe are {() => {
+                if (changelogs.lazer < changelogs.stable) {
+                    return 'not lazer yet';
+                } else {
+                    return 'lazer now!';
+                }
+            }}"
         />
     {/if}
 </svelte:head>
@@ -36,42 +43,30 @@
         <h1>lazer vs stable user counts</h1>
         <div class="bars">
             {#if changelogs}
-                <div class="bar">
-                    <h3>
-                        current (last check was at {new Date(
-                            changelogs.timestamp,
-                        ).toLocaleString("en-UK")})
-                    </h3>
-                    <Bars stable={changelogs.stable} lazer={changelogs.lazer} />
-                </div>
+                <BarBlock stable={changelogs.stable} lazer={changelogs.lazer}>
+                    current (last check was at {new Date(
+                        changelogs.timestamp,
+                    ).toLocaleString("en-UK")})
+                </BarBlock>
             {:else}
                 <div>uhhh</div>
             {/if}
             {#if peak}
-                <div class="bar">
-                    <h3>
-                        lazer user count peak (at {new Date(
-                            peak.timestamp,
-                        ).toLocaleString("en-UK")})
-                    </h3>
-                    <Bars stable={peak.stable} lazer={peak.lazer} />
-                </div>
-                <div class="bar">
-                    <h3>
-                        lazer user percentage peak (at {new Date(
-                            peakRel.timestamp,
-                        ).toLocaleString("en-UK")})
-                    </h3>
-                    <Bars stable={peakRel.stable} lazer={peakRel.lazer} />
-                </div>
-                <div class="bar">
-                    <h3>
-                        lazer user count peak near highest percentage (at {new Date(
-                            peakNear.timestamp,
-                        ).toLocaleString("en-UK")})
-                    </h3>
-                    <Bars stable={peakNear.stable} lazer={peakNear.lazer} />
-                </div>
+                <BarBlock stable={peak.stable} lazer={peak.lazer}>
+                    lazer user count peak (at {new Date(
+                        peak.timestamp,
+                    ).toLocaleString("en-UK")})
+                </BarBlock>
+                <BarBlock stable={peakRel.stable} lazer={peakRel.lazer}>
+                    lazer user percentage peak (at {new Date(
+                        peakRel.timestamp,
+                    ).toLocaleString("en-UK")})
+                </BarBlock>
+                <BarBlock stable={peakNear.stable} lazer={peakNear.lazer}>
+                    lazer user count peak near highest percentage (at {new Date(
+                        peakNear.timestamp,
+                    ).toLocaleString("en-UK")})
+                </BarBlock>
             {/if}
         </div>
         <Graph {userCount} {userRatio} />
@@ -106,9 +101,6 @@
 
     h1 {
         text-align: center;
-    }
-    h3 {
-        margin: 0;
     }
 
     .app {
