@@ -24,9 +24,9 @@
 <style>
     .card-container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
-        column-gap: 1rem;
+        row-gap: 1rem;
         flex-wrap: wrap;
         max-height: 600px;
         margin: 20px;
