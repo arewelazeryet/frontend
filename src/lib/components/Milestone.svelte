@@ -1,29 +1,31 @@
 <script lang="ts">
-    let { date, children } = $props();
+    let { row, date, children } = $props();
     let displayDate = date ? new Date(date).toLocaleDateString("en-GB") : "TBD";
     let succeeded = date ? true : false;
 </script>
 
-<div class="card {succeeded ? 'reached' : 'waiting'}">
+<div class="card {succeeded ? 'reached' : 'waiting'}" style="grid-row: {row}">
     <h4 class="date">{displayDate}</h4>
     <h2>{@render children()}</h2>
 </div>
 
 <style>
     .card {
-        width: 30%;
         border: 3px solid;
         border-radius: 20px;
         padding: 5px;
+        overflow: hidden;
     }
     .date {
         color: light-dark(#908caa, black);
     }
     .reached {
         border-color: #88b300;
+        grid-column: 1;
     }
     .waiting {
         border-color: #ed1221;
+        grid-column: 2;
     }
     h2,
     h4 {

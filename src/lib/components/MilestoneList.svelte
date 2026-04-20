@@ -1,11 +1,37 @@
 <script lang="ts">
     import Milestone from "./Milestone.svelte";
+
+    const reached = [
+        { date: 1706562000000, milestone: "pp release" },
+        { date: 1721854800000, milestone: "Daily challenges" },
+        { date: 1740430800000, milestone: "Beatmap submission" },
+        { date: 1747170000000, milestone: "Satori GC" },
+        { date: 1749070800000, milestone: "Song select v2" },
+        { date: 1761685200000, milestone: "WASAPI" },
+        { date: 1776459600000, milestone: "Ranked play" },
+    ];
+
+    const tba = [
+        "Real-time diffcalc",
+        "Results screen v2",
+        "New score multipliers",
+        "OWC on lazer",
+        "Majority on lazer",
+        "App store release",
+        "Stable deprecated",
+    ];
 </script>
 
 <div>
     <h2>Cool milestones</h2>
     <div class="card-container">
-        <Milestone date={1706562000000}>pp release</Milestone>
+        {#each reached as _, i}
+            <Milestone row={i + 1} date={reached[i].date}
+                >{reached[i].milestone}</Milestone
+            >
+            <Milestone row={i + 1} date={null}>{tba[i]}</Milestone>
+        {/each}
+        <!-- <Milestone date={1706562000000}>pp release</Milestone>
         <Milestone date={1721854800000}>Daily challenges</Milestone>
         <Milestone date={1740430800000}>Beatmap submission</Milestone>
         <Milestone date={1747170000000}>Satori GC</Milestone>
@@ -17,18 +43,15 @@
         <Milestone date={null}>New score multipliers</Milestone>
         <Milestone date={null}>OWC on lazer</Milestone>
         <Milestone date={null}>Majority on lazer</Milestone>
-        <Milestone date={null}>App store release</Milestone>
+        <Milestone date={null}>App store release</Milestone> -->
     </div>
 </div>
 
 <style>
     .card-container {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1rem;
         row-gap: 1rem;
-        flex-wrap: wrap;
-        max-height: 600px;
-        margin: 20px;
     }
 </style>
