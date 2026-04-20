@@ -19,4 +19,7 @@
         flex-direction: row;
         justify-content: space-around;
     }
+    span {
+        color: #6e6a86;
+    }
 </style>
