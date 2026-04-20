@@ -3,6 +3,7 @@ import { env } from "$env/dynamic/private";
 import { measurementsTable } from "../db/schema.ts";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
+import { type ChangelogEntry, getPlayerCounts } from "$utils/data.ts";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 // Lazy initialization of the database
@@ -82,7 +83,7 @@ export async function getChangelogDataApi(timestamp: number): Promise<{
     stable: number;
     lazer: number;
 } | null> {
-    let changelogs: Array<{ name: string; user_count: number }> = [];
+    let changelogs: ChangelogEntry[] = [];
     try {
         const client = await getApiClient();
         changelogs = await client.getChangelogStreams();
@@ -90,13 +91,7 @@ export async function getChangelogDataApi(timestamp: number): Promise<{
         console.log("Failed to fetch changelog data", err);
         return null;
     }
-    const stable =
-        (changelogs.find((i) => i.name === "stable40")?.user_count ?? 0) +
-        (changelogs.find((i) => i.name === "cuttingedge")?.user_count ?? 0);
-
-    const lazer =
-        (changelogs.find((i) => i.name === "lazer")?.user_count ?? 0) +
-        (changelogs.find((i) => i.name === "tachyon")?.user_count ?? 0);
+    const { stable, lazer } = getPlayerCounts(changelogs);
 
     await getDb().insert(measurementsTable).values({
         timestamp: timestamp,
@@ -130,7 +125,7 @@ export async function getLazerRelativePeak() {
             )`,
         );
 
-    const peakLazer = result[0];
+    const peakLazer = result[0] as ChangelogData;
     return peakLazer;
 }
 
