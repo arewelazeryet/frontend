@@ -26,6 +26,15 @@
         }
         return "we are officially lazer";
     };
+
+    const opengraphHeader = () => {
+        const { lazer, stable } = changelogs;
+        const ratio = Math.round(lazer / (stable + lazer)) * 10000.0;
+        const areWeYet =
+            ratio < 50.0 ? "we are not lazer yet" : "we are lazer now";
+        const start = `Currently the percentage is ${ratio}. ${areWeYet}`;
+        return start;
+    };
     // console.log(data.userCountData);
 </script>
 
@@ -36,19 +45,7 @@
     />
     <meta property="og:type" content="website" />
     {#if changelogs}
-        <meta
-            property="og:description"
-            content="Currently the percentage is {Math.round(
-                (changelogs.lazer / (changelogs.stable + changelogs.lazer)) *
-                    10000.0,
-            ) / 100}%\nWe are {() => {
-                if (changelogs.lazer < changelogs.stable) {
-                    return 'not lazer yet';
-                } else {
-                    return 'lazer now!';
-                }
-            }}"
-        />
+        <meta property="og:description" content={opengraphHeader()} />
     {/if}
 </svelte:head>
 
