@@ -3,10 +3,11 @@
     import BarBlock from "$components/BarBlock.svelte";
     import Bars from "$components/Bars.svelte";
     import Footer from "$components/Footer.svelte";
-    import Graph from "$components/Graph.svelte";
     import Milestone from "$components/Milestone.svelte";
     import MilestoneList from "$components/MilestoneList.svelte";
     import { onMount } from "svelte";
+    import RatioGraph from "$components/RatioGraph.svelte";
+    import ComparisonGraph from "$components/ComparisonGraph.svelte";
 
     let { data } = $props();
 
@@ -94,8 +95,18 @@
             {/if}
         </div>
         <MilestoneList />
-        <h2>Historical statistics</h2>
-        <Graph userCount={userCountData} userRatio={userRatioData} />
+        <h2>Graphs</h2>
+        <ComparisonGraph
+            timestamps={userCountData.timestamps}
+            stable={userCountData.stable}
+            lazer={userCountData.lazer}
+            name="user counts"
+        ></ComparisonGraph>
+        <RatioGraph
+            values={userRatioData.ratio}
+            timestamps={userRatioData.timestamps}
+            name="lazer user ratio"
+        ></RatioGraph>
         <Footer />
     </div>
 </div>
