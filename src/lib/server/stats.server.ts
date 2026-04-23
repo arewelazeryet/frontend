@@ -40,6 +40,7 @@ setInterval(async () => {
         console.log("Triggered an update");
         latestCheck = Date.now();
         latestData = await getChangelogDataApi(latestCheck);
+        await getLastDay();
     }
     console.log("automatic update");
 }, 150000);
@@ -321,7 +322,7 @@ export async function getLastDayRatio(): Promise<RatioGraph> {
         return lastDayRatioGraph;
     }
 
-    getLastDay();
+    await getLastDay();
 
     // getLastDay sets both
     return lastDayRatioGraph!;
