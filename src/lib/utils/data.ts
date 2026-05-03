@@ -29,3 +29,6 @@ export const timeout = (ms: number) =>
     new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Changelog request timed out")), ms),
     );
+
+export const ratio = (stable: number, lazer: number) =>
+    lazer / (stable + lazer);

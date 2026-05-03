@@ -9,7 +9,7 @@ import { nonZeroNumber, now, type NonZeroNumber } from "$utils/types.ts";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 // Lazy initialization of the database
-function getDb() {
+export function getDb() {
     if (_db) {
         return _db;
     }
@@ -106,7 +106,10 @@ export async function getChangelogDataApi(timestamp: NonZeroNumber): Promise<{
 } | null> {
     let changelogs: ChangelogEntry[] = [];
     try {
-        const client = apiClientPromise;
+        const client = await getApiClient();
+        if (client === null) {
+            throw "Failed to get client - client is null";
+        }
         log("Got an API client");
         changelogs = await client.getChangelogStreams();
         log("Got changelogs");

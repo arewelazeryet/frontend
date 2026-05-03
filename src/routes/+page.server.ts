@@ -1,4 +1,5 @@
 // src/routes/+page.server.ts
+import { getHistoricData, getHistoricRatio } from "$lib/server/daily.server.ts";
 import {
     getChangelogData,
     getLastDay,
@@ -20,5 +21,7 @@ export const load = async () => {
         userRatioData: await getUserRatioGraph(),
         dayUserCountData: await getLastDay(),
         dayUserRatioData: await getLastDayRatio(),
+        historicUserCount: await getHistoricData(),
+        historicUserRatio: await getHistoricRatio(),
     };
 };

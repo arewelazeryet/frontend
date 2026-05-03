@@ -20,6 +20,9 @@
     const dayUserCountData = $derived(data.dayUserCountData);
     const dayUserRatioData = $derived(data.dayUserRatioData);
 
+    const historicCount = $derived(data.historicUserCount);
+    const historicRatio = $derived(data.historicUserRatio);
+
     onMount(() => {
         const interval = setInterval(() => {
             invalidateAll();
@@ -121,6 +124,18 @@
             values={dayUserRatioData.ratio}
             timestamps={dayUserRatioData.timestamp}
             name="lazer user ratio for last 24h"
+        />
+
+        <ComparisonGraph
+            timestamps={historicCount.date}
+            stable={historicCount.stable}
+            lazer={historicCount.lazer}
+            name="Historic user counts (daily averages)"
+        />
+        <RatioGraph
+            timestamps={historicRatio.date}
+            values={historicRatio.ratio}
+            name="Historic lazer% (daily averages)"
         />
         <Footer />
     </div>
