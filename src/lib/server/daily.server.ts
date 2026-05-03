@@ -10,6 +10,7 @@ export type DailyEntry = {
     timestamps: number[];
     stable: number[];
     lazer: number[];
+    sum: number[];
 };
 
 export type DailyRatio = {
@@ -27,12 +28,14 @@ export async function getHistoricData(): Promise<DailyEntry> {
             init.timestamps.push(value.date);
             init.stable.push(value.stable);
             init.lazer.push(value.lazer);
+            init.sum.push(value.stable + value.lazer);
             return init;
         },
         {
             timestamps: [] as number[],
             stable: [] as number[],
             lazer: [] as number[],
+            sum: [] as number[],
         },
     );
 

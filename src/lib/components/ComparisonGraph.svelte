@@ -7,7 +7,7 @@
     import uPlot from "uplot";
     import "uplot/dist/uPlot.min.css";
 
-    let { timestamps, stable, lazer, name } = $props();
+    let { timestamps, stable, lazer, sum, name } = $props();
 
     let graphContainer: HTMLDivElement;
     let graphPlot: uPlot;
@@ -15,7 +15,7 @@
     onMount(() => {
         graphPlot = new uPlot(
             makeUserCountOptions(graphContainer.clientWidth, name, name),
-            [timestamps, stable, lazer],
+            [timestamps, stable, lazer, sum],
             graphContainer,
         );
 
@@ -26,7 +26,7 @@
 
             graphPlot = new uPlot(
                 makeUserCountOptions(graphContainer.clientWidth, name, name),
-                [timestamps, stable, lazer],
+                [timestamps, stable, lazer, sum],
                 graphContainer,
             );
         };

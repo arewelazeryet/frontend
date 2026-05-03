@@ -188,6 +188,7 @@ type UserGraph = {
     timestamps: number[];
     stable: number[];
     lazer: number[];
+    sum: number[];
 };
 
 type RatioGraph = {
@@ -238,12 +239,14 @@ async function updateUserCountGraph() {
             acc.timestamps.push(d.timestamp / 1000);
             acc.stable.push(d.stable);
             acc.lazer.push(d.lazer);
+            acc.sum.push(d.stable + d.lazer);
             return acc;
         },
         {
             timestamps: [] as number[],
             stable: [] as number[],
             lazer: [] as number[],
+            sum: [] as number[],
         },
     );
 }
@@ -323,12 +326,14 @@ async function updateLastDay() {
                 acc.timestamps.push(d.timestamp / 1000);
                 acc.stable.push(d.stable ?? 0);
                 acc.lazer.push(d.lazer ?? 0);
+                acc.sum.push(d.stable + d.lazer);
                 return acc;
             },
             {
                 timestamps: [] as number[],
                 stable: [] as number[],
                 lazer: [] as number[],
+                sum: [] as number[],
             },
         );
 

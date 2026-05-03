@@ -8,7 +8,12 @@
         ratio,
         ratio_name,
     }: {
-        comparison: { timestamps: number[]; stable: number[]; lazer: number[] };
+        comparison: {
+            timestamps: number[];
+            stable: number[];
+            lazer: number[];
+            sum: number[];
+        };
         comparison_name: string;
         ratio: { timestamps: number[]; ratio: number[] };
         ratio_name: string;
@@ -20,6 +25,7 @@
         timestamps={comparison.timestamps}
         stable={comparison.stable}
         lazer={comparison.lazer}
+        sum={comparison.sum}
         name={comparison_name}
     />
     <RatioGraph
