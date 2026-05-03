@@ -53,7 +53,7 @@
     });
 </script>
 
-<div style="height: 500px;">
+<div style="height: 500px; width: 700px">
     <div bind:this={graphContainer} style="width: 100%"></div>
 </div>
 
