@@ -236,7 +236,7 @@ async function updateUserCountGraph() {
 
     latestUserGraph = rows.reduce(
         (acc, d) => {
-            acc.timestamps.push(d.timestamp / 1000);
+            acc.timestamps.push(d.timestamp);
             acc.stable.push(d.stable);
             acc.lazer.push(d.lazer);
             acc.sum.push(d.stable + d.lazer);
@@ -293,7 +293,7 @@ export async function updateUserRatioGraph() {
       ORDER BY b.timestamp`);
     latestRatioGraph = rows.reduce(
         (acc, d) => {
-            acc.timestamps.push(d.timestamp / 1000);
+            acc.timestamps.push(d.timestamp);
             acc.ratio.push(d.ratio * 100);
             return acc;
         },
@@ -323,7 +323,7 @@ async function updateLastDay() {
         .reverse()
         .reduce(
             (acc, d) => {
-                acc.timestamps.push(d.timestamp / 1000);
+                acc.timestamps.push(d.timestamp);
                 acc.stable.push(d.stable ?? 0);
                 acc.lazer.push(d.lazer ?? 0);
                 acc.sum.push(d.stable + d.lazer);
@@ -359,7 +359,7 @@ async function updateLastDayRatio() {
         .reverse()
         .reduce(
             (acc, d) => {
-                acc.timestamps.push(d.timestamp / 1000);
+                acc.timestamps.push(d.timestamp);
                 acc.ratio.push(
                     ((d.lazer ?? 0) / ((d.lazer ?? 0) + (d.stable ?? 0))) * 100,
                 );

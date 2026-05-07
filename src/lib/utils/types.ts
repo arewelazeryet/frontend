@@ -10,5 +10,5 @@ export function nonZeroNumber(value: number): NonZeroNumber | undefined {
 }
 
 export function now(): NonZeroNumber {
-    return nonZeroNumber(Date.now()) as NonZeroNumber;
+    return nonZeroNumber(Date.now() / 1000) as NonZeroNumber;
 }
