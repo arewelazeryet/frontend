@@ -3,7 +3,12 @@ import { env } from "$env/dynamic/private";
 import { measurementsTable } from "../db/schema.ts";
 import { desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
-import { type ChangelogEntry, getPlayerCounts, timeout } from "$utils/data.ts";
+import {
+    type ChangelogEntry,
+    getPlayerCounts,
+    ratio,
+    timeout,
+} from "$utils/data.ts";
 import { log, debug, warn, error } from "$utils/logs.ts";
 import { nonZeroNumber, now, type NonZeroNumber } from "$utils/types.ts";
 
@@ -44,10 +49,10 @@ function getApiClient() {
 }
 
 let latestData: typeof measurementsTable.$inferSelect | null = null;
-let latestCheck: NonZeroNumber;
+let latestCheck: NonZeroNumber = now();
 
 setInterval(async () => {
-    if (!latestData || latestCheck < Date.now() - 300000) {
+    if (!latestData || latestCheck < now() - 300) {
         log("Triggered an update");
         latestCheck = now();
         log("Current timestamp is ", latestCheck);
@@ -55,7 +60,6 @@ setInterval(async () => {
         log("Fetched osu!api data", latestData);
         await Promise.all([
             updateLastDay(),
-            updateLastDayRatio(),
             updateUserCountGraph(),
             updateUserRatioGraph(),
         ]);
@@ -71,14 +75,11 @@ type ChangelogData = {
 };
 
 export async function getChangelogData() {
-    if (latestData && latestCheck > Date.now() - 300000) {
-        log("Updated recently, returning latest");
+    if (latestData && latestCheck > now() - 300) {
+        log(
+            `Updated recently ${new Date(latestCheck * 1000)}, returning latest`,
+        );
         return latestData;
-    }
-
-    /// Guard against fetching before an autoupdate
-    if (latestCheck === undefined) {
-        latestCheck = now();
     }
 
     log("Triggered an update");
@@ -86,7 +87,7 @@ export async function getChangelogData() {
     try {
         data = await Promise.race<ChangelogData | null>([
             getChangelogDataApi(latestCheck),
-            timeout(1000),
+            timeout(3000),
         ]);
         log("Fetched osu!api changelog data");
     } catch (err) {
@@ -110,22 +111,22 @@ export async function getChangelogDataApi(timestamp: NonZeroNumber): Promise<{
         if (client === null) {
             throw "Failed to get client - client is null";
         }
-        log("Got an API client");
+        log("fetch:", "Got an API client");
         changelogs = await client.getChangelogStreams();
-        log("Got changelogs");
+        log("fetch:", "Got changelogs");
     } catch (err) {
-        error("Failed to fetch changelog data", err);
+        error("fetch:", "Failed to fetch changelog data", err);
         return null;
     }
     const { stable, lazer } = getPlayerCounts(changelogs);
-    log("Got playcounts", stable, lazer);
+    log("fetch:", "Got playcounts", stable, lazer);
 
     const result = await getDb().insert(measurementsTable).values({
         timestamp: timestamp,
         stable: stable,
         lazer: lazer,
     });
-    log("Inserted changelog entry", result);
+    log("fetch:", "Inserted changelog entry", result);
     return { timestamp: timestamp, stable: stable, lazer: lazer };
 }
 
@@ -252,7 +253,7 @@ async function updateUserCountGraph() {
 }
 
 export async function getUserCountGraph(): Promise<UserGraph> {
-    if (latestUserGraph && latestCheck > Date.now() - 150000) {
+    if (latestUserGraph && latestCheck > now() - 150) {
         return latestUserGraph;
     }
     await updateUserCountGraph();
@@ -302,7 +303,7 @@ export async function updateUserRatioGraph() {
 }
 
 export async function getUserRatioGraph(): Promise<RatioGraph> {
-    if (latestRatioGraph && latestCheck > Date.now() - 150000) {
+    if (latestRatioGraph && latestCheck > now() - 150) {
         return latestRatioGraph;
     }
     await updateUserRatioGraph();
@@ -311,6 +312,7 @@ export async function getUserRatioGraph(): Promise<RatioGraph> {
 
 let lastDayUserGraph: UserGraph | null = null;
 let lastDayRatioGraph: RatioGraph | null = null;
+let lastDayUpdatePromise: Promise<void> | null = null;
 
 async function updateLastDay() {
     const rows = (
@@ -326,6 +328,7 @@ async function updateLastDay() {
                 acc.timestamps.push(d.timestamp);
                 acc.stable.push(d.stable ?? 0);
                 acc.lazer.push(d.lazer ?? 0);
+                acc.ratio.push(ratio(d.stable ?? 0, d.lazer ?? 0) * 100);
                 acc.sum.push(d.stable + d.lazer);
                 return acc;
             },
@@ -333,52 +336,42 @@ async function updateLastDay() {
                 timestamps: [] as number[],
                 stable: [] as number[],
                 lazer: [] as number[],
+                ratio: [] as number[],
                 sum: [] as number[],
             },
         );
 
-    lastDayUserGraph = rows;
+    lastDayUserGraph = {
+        timestamps: rows.timestamps,
+        stable: rows.stable,
+        lazer: rows.lazer,
+        sum: rows.sum,
+    };
+    lastDayRatioGraph = { timestamps: rows.timestamps, ratio: rows.ratio };
+}
+
+function isLastDayUpdated() {
+    return lastDayUserGraph && lastDayRatioGraph && latestCheck > now() - 150;
+}
+
+async function ensureLastDayGraphs() {
+    if (isLastDayUpdated()) {
+        return;
+    }
+
+    lastDayUpdatePromise ??= updateLastDay().finally(() => {
+        lastDayUpdatePromise = null;
+    });
+
+    await lastDayUpdatePromise;
 }
 
 export async function getLastDay(): Promise<UserGraph> {
-    if (lastDayUserGraph && latestCheck > Date.now() - 150000) {
-        return lastDayUserGraph;
-    }
-    await updateLastDay();
+    await ensureLastDayGraphs();
     return lastDayUserGraph!;
 }
 
-async function updateLastDayRatio() {
-    const rows = (
-        await getDb()
-            .select()
-            .from(measurementsTable)
-            .orderBy(desc(measurementsTable.timestamp))
-            .limit(288)
-    )
-        .reverse()
-        .reduce(
-            (acc, d) => {
-                acc.timestamps.push(d.timestamp);
-                acc.ratio.push(
-                    ((d.lazer ?? 0) / ((d.lazer ?? 0) + (d.stable ?? 0))) * 100,
-                );
-                return acc;
-            },
-            {
-                timestamps: [] as number[],
-                ratio: [] as number[],
-            },
-        );
-
-    lastDayRatioGraph = rows;
-}
-
 export async function getLastDayRatio(): Promise<RatioGraph> {
-    if (lastDayRatioGraph && latestCheck > Date.now() - 150000) {
-        return lastDayRatioGraph;
-    }
-
-    await updateLastDayRatio();
+    await ensureLastDayGraphs();
     return lastDayRatioGraph!;
 }

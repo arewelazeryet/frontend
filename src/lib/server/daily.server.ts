@@ -1,11 +1,8 @@
 import { dailyTable } from "$lib/db/schema";
-import { ratio, type ChangelogEntry } from "$utils/data";
+import { ratio } from "$utils/data";
 import { log } from "$utils/logs";
 import type { NonZeroNumber } from "$utils/types";
 import { getDb } from "./stats.server";
-let latestCheck: NonZeroNumber;
-
-const AUTOUPDATE_TIMEOUT = 1000 * 60 * 24;
 
 export type DailyEntry = {
     timestamps: number[];
@@ -29,12 +26,35 @@ function isLatestCheckToday() {
 
 let latestHistoricAbsolute: DailyEntry;
 let latestHistoricRatio: DailyRatio;
+let historicUpdatePromise: Promise<void> | null = null;
 
-export async function getHistoricData(): Promise<DailyEntry> {
-    if (isLatestCheckToday() && latestHistoricAbsolute) {
-        log("Returning prefetched historic data");
-        return latestHistoricAbsolute;
+function isHistoricFresh() {
+    return (
+        isLatestCheckToday() && latestHistoricAbsolute && latestHistoricRatio
+    );
+}
+
+async function ensureHistoricData() {
+    if (isHistoricFresh()) {
+        return;
     }
+    historicUpdatePromise ??= updateHistoricData().finally(() => {
+        historicUpdatePromise = null;
+    });
+    await historicUpdatePromise;
+}
+export async function getHistoricData(): Promise<DailyEntry> {
+    await ensureHistoricData();
+    return latestHistoricAbsolute!;
+}
+export async function getHistoricRatio(): Promise<DailyRatio> {
+    await ensureHistoricData();
+    return latestHistoricRatio!;
+}
+
+export async function updateHistoricData(): Promise<void> {
+    latestCheckedDay = new Date(Date.now());
+
     const db = getDb();
 
     let values = (await db.select().from(dailyTable)).reduce(
@@ -43,38 +63,29 @@ export async function getHistoricData(): Promise<DailyEntry> {
             init.stable.push(value.stable);
             init.lazer.push(value.lazer);
             init.sum.push(value.stable + value.lazer);
+            init.ratio.push(ratio(value.stable, value.lazer) * 100);
             return init;
         },
         {
             timestamps: [] as number[],
             stable: [] as number[],
             lazer: [] as number[],
+            ratio: [] as number[],
             sum: [] as number[],
         },
     );
 
-    latestHistoricAbsolute = values;
-    return values;
-}
+    latestHistoricAbsolute = {
+        timestamps: values.timestamps,
+        stable: values.stable,
+        lazer: values.lazer,
+        sum: values.sum,
+    };
 
-export async function getHistoricRatio(): Promise<DailyRatio> {
-    if (isLatestCheckToday() && latestHistoricRatio) {
-        log("Returning prefetched historic ratio");
-        return latestHistoricRatio;
-    }
-    let values = (await getDb().select().from(dailyTable)).reduce(
-        (init, value) => {
-            init.timestamps.push(value.date);
-            init.ratio.push(ratio(value.stable, value.lazer) * 100.0);
-            return init;
-        },
-        {
-            timestamps: [] as number[],
-            ratio: [] as number[],
-        },
-    );
+    latestHistoricRatio = {
+        timestamps: values.timestamps,
+        ratio: values.ratio,
+    };
 
-    latestHistoricRatio = values;
-
-    return latestHistoricRatio;
+    return;
 }

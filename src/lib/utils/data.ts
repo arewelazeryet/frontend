@@ -8,22 +8,27 @@ type UserCounts = {
     lazer: number;
 };
 
-function findByName(array: ChangelogEntry[], name: string): number {
-    return array.find((i) => i.name === name)?.user_count ?? 0;
-}
-
-function findStable(array: ChangelogEntry[]): number {
-    return findByName(array, "stable40") + findByName(array, "cuttingedge");
-}
-function findLazer(array: ChangelogEntry[]): number {
-    return findByName(array, "lazer") + findByName(array, "tachyon");
-}
-
 export function getPlayerCounts(array: ChangelogEntry[]): UserCounts {
-    return {
-        stable: findStable(array),
-        lazer: findLazer(array),
-    };
+    const result = array.reduce(
+        (acc, changelog) => {
+            if (
+                changelog.name === "stable40" ||
+                changelog.name === "cuttingedge"
+            ) {
+                acc.stable += changelog.user_count ?? 0;
+            }
+
+            if (changelog.name === "lazer" || changelog.name === "tachyon") {
+                acc.lazer += changelog.user_count ?? 0;
+            }
+            return acc;
+        },
+        {
+            stable: 0,
+            lazer: 0,
+        } as UserCounts,
+    );
+    return result;
 }
 export const timeout = (ms: number) =>
     new Promise<never>((_, reject) =>
