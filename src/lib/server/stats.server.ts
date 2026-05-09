@@ -118,11 +118,13 @@ export async function getChangelogDataApi(timestamp: NonZeroNumber): Promise<{
     const { stable, lazer } = getPlayerCounts(changelogs);
     log("fetch:", "Got playcounts", stable, lazer);
 
-    const result = await getDb().insert(measurementsTable).values({
-        timestamp: timestamp,
-        stable: stable,
-        lazer: lazer,
-    });
+    const result = await getDb()
+        .insert(measurementsTable)
+        .values({
+            timestamp: sql`CAST(${timestamp} AS INTEGER)`,
+            stable: stable,
+            lazer: lazer,
+        });
     log("fetch:", "Inserted changelog entry", result);
     return { timestamp: timestamp, stable: stable, lazer: lazer };
 }
