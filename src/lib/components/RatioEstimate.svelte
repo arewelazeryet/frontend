@@ -87,8 +87,8 @@
         </div>
     </label>
     <div class="subscripts">
-        <div>lazer: {stablePercentage}%</div>
-        <div>stable: {percentage}%</div>
+        <div>lazer: {percentage}%</div>
+        <div>stable: {stablePercentage}%</div>
     </div>
     <p>
         {#if failed}
