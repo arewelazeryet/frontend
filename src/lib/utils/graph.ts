@@ -71,7 +71,7 @@ export function makeUserCountOptions(
             y: { min: 0, max: 20000 },
         },
         series: [
-            {},
+            { label: "time" },
             { label: "stable", stroke: "#66ccff", width: 2, spanGaps: false },
             { label: "lazer", stroke: "#ff66aa", width: 2, spanGaps: false },
             { label: "total", stroke: "#6e6a86", width: 2, spanGaps: false },
@@ -107,7 +107,10 @@ export function makeUserRatioOptions(
         scales: {
             y: { min: 0, max: 100 },
         },
-        series: [{}, { label: "lazer%", stroke: "#ff66aa", width: 2 }],
+        series: [
+            { label: "time" },
+            { label: "lazer%", stroke: "#ff66aa", width: 2 },
+        ],
         axes: [
             {
                 stroke: c.text,

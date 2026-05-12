@@ -69,10 +69,10 @@
 
 <section class="estimate">
     <SelfAnchor anchor="regression">
-        <h2>Daily average ratio estimate</h2>
+        <h2>daily average ratio estimate</h2>
     </SelfAnchor>
     <label>
-        Target lazer ratio: {percentage}%
+        target lazer ratio: {percentage}%
         <div class="slider" style="--stable: {percentage}%">
             <div class="bar-container">
                 <div class="stable-bar"></div>
@@ -92,13 +92,13 @@
     </div>
     <p>
         {#if failed}
-            Could not load estimate.
+            could not load estimate.
         {:else if loading && !estimate}
-            Loading estimate...
+            loading estimate...
         {:else if estimate && reached}
-            Reached on: {estimatedDate}
+            reached on: {estimatedDate}
         {:else}
-            Estimated date: {estimatedDate}
+            estimated date: {estimatedDate}
         {/if}
     </p>
 </section>

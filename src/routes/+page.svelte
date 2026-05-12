@@ -33,10 +33,10 @@
 
     const areWeYet = () => {
         if (ratio < 50.0) {
-            return "Not yet, but we're getting there";
+            return "not yet, but we're getting there";
         }
         if (ratio < 75.0) {
-            return "The majority is here, but some still remain";
+            return "the majority is here, but some still remain";
         }
         return "we are officially lazer";
     };
@@ -63,7 +63,7 @@
 
 <div class="app">
     <div class="contents">
-        <h1 style="margin-bottom: 0">Are we lazer yet?</h1>
+        <h1 style="margin-bottom: 0">are we lazer yet?</h1>
         <h2 style="margin-top: 0">{areWeYet()}</h2>
         <div class="bars">
             {#if changelogs}
@@ -81,21 +81,21 @@
                     stable={peak.stable}
                     lazer={peak.lazer}
                 >
-                    Highest lazer user count ({date(peak.timestamp)})
+                    highest lazer user count ({date(peak.timestamp)})
                 </BarBlock>
                 <BarBlock
                     anchor="peak_ratio"
                     stable={peakRel.stable}
                     lazer={peakRel.lazer}
                 >
-                    Highest lazer ratio ({date(peakRel.timestamp)})
+                    highest lazer ratio ({date(peakRel.timestamp)})
                 </BarBlock>
                 <BarBlock
                     anchor="percentile"
                     stable={nearPeak.stable}
                     lazer={nearPeak.lazer}
                 >
-                    Highest usage while near peak ratio ({date(
+                    highest usage while near peak ratio ({date(
                         nearPeak.timestamp,
                     )})
                 </BarBlock>
@@ -114,13 +114,13 @@
             />
 
             <SelfAnchor anchor="history">
-                <h2>Historic data</h2>
+                <h2>historic data</h2>
             </SelfAnchor>
             <GraphSet
                 comparison={historicCount}
-                comparison_name="Historic user counts"
+                comparison_name="historic user counts"
                 ratio={historicCount}
-                ratio_name="Historic lazer%"
+                ratio_name="historic lazer%"
             />
         </div>
         <MilestoneList />
