@@ -149,15 +149,3 @@
 <div style="height: 450px; max-width: 700px; width: 100%">
     <canvas bind:this={chartCanvas} ondblclick={handleDoubleclick} style="width: 100%; height: 100%;"></canvas>
 </div>
-
-<style>
-    div :global(.u-legend) {
-        color: light-dark(black, "#e0def4");
-    }
-    div :global(.u-title) {
-        color: light-dark(black, "#e0def4");
-    }
-    div :global(.u-wrap) {
-        border: none;
-    }
-</style>
