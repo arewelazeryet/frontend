@@ -1,15 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import type uPlot from "uplot";
-
-export const dateTimeSettings = [
-    [3600 * 24 * 365, "{YYYY}", null, null, null, null, null, null, 1],
-    [3600 * 24 * 28, "{MMM}", "\n{YYYY}", null, null, null, null, null, 1],
-    [3600 * 24, "{D}/{M}", "\n{YYYY}", null, null, null, null, null, 1],
-    [3600, "{h}{aa}", "\n{D}/{M}/{YY}", null, "\n{D}/{M}", null, null, null, 1],
-    [60, "{h}:{mm}{aa}", "\n{D}/{M}/{YY}", null, "\n{D}/{M}", null, null, null, 1],
-    [1, ":{ss}", "\n{D}/{M}/{YY} {h}:{mm}{aa}", null, "\n{D}/{M} {h}:{mm}{aa}", null, "\n{h}:{mm}{aa}", null, 1],
-    [0.001, ":{ss}.{fff}", "\n{D}/{M}/{YY} {h}:{mm}{aa}", null, "\n{D}/{M} {h}:{mm}{aa}", null, "\n{h}:{mm}{aa}", null, 1],
-];
 
 const milestones = [
     { date: "2024-01-29", label: "pp release" },
@@ -192,64 +181,145 @@ export function makeUserRatioConfiguration(
     };
 }
 
-export function makeUserCountOptions(width: number, id: string, title: string): uPlot.Options {
-    const c = getColors();
+export function makeUserCountConfiguration(
+    timestamps: number[],
+    stable: number[],
+    lazer: number[],
+    sum: number[],
+    name: string,
+    is24h: Boolean = false,
+): ChartConfiguration {
+    const colors = getColors();
+    const chartDates = getChartDates(timestamps);
+
+    const tickDateOptions = is24h
+        ? {
+              yeah: undefined,
+              month: undefined,
+              day: undefined,
+              hour: "numeric",
+          }
+        : {
+              month: "short",
+              year: "numeric",
+              day: undefined,
+              weekday: undefined,
+          };
 
     return {
-        title: title,
-        id: id,
-        width: width,
-        height: 380,
-        scales: {
-            y: { min: 0, max: 20000 },
+        type: "line",
+        data: {
+            labels: chartDates,
+            datasets: [
+                {
+                    label: "stable",
+                    data: stable,
+                    borderColor: "#66ccff",
+                    borderWidth: 2,
+                },
+                {
+                    label: "lazer",
+                    data: lazer,
+                    borderColor: "#ff66aa",
+                    borderWidth: 2,
+                },
+                {
+                    label: "total",
+                    data: sum,
+                    borderColor: "#6e6a86",
+                    borderWidth: 2,
+                },
+            ],
         },
-        series: [
-            { label: "time" },
-            { label: "stable", stroke: "#66ccff", width: 2, spanGaps: false },
-            { label: "lazer", stroke: "#ff66aa", width: 2, spanGaps: false },
-            { label: "total", stroke: "#6e6a86", width: 2, spanGaps: false },
-        ],
-        axes: [
-            {
-                stroke: c.text,
-                grid: { stroke: c.grid },
-                ticks: { stroke: c.border },
-                values: dateTimeSettings,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "nearest",
+                intersect: false,
             },
-            {
-                stroke: c.text,
-                grid: { stroke: c.grid },
-                ticks: { stroke: c.border },
+            elements: {
+                point: {
+                    radius: 0,
+                    hoverRadius: 5,
+                },
             },
-        ],
-    };
-}
-
-export function makeUserRatioOptions(width: number, id: string, title: string): uPlot.Options {
-    const c = getColors();
-
-    return {
-        title: title,
-        id: id,
-        width: width,
-        height: 380,
-        scales: {
-            y: { min: 0, max: 100 },
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: colors.text,
+                        font: {
+                            size: 14,
+                            weight: "bold",
+                        },
+                    },
+                },
+                title: {
+                    display: true,
+                    text: name,
+                    color: colors.text,
+                    font: {
+                        size: 18,
+                        weight: "bold",
+                    },
+                },
+                tooltip: {
+                    mode: "index",
+                    callbacks: {
+                        title: (context) => {
+                            return chartDates[context[0].dataIndex].toLocaleString("en-US");
+                        },
+                    },
+                },
+                annotation: {
+                    annotations: generateAnnotations(chartDates),
+                },
+                zoom: {
+                    zoom: {
+                        drag: {
+                            enabled: true,
+                            backgroundColor: "rgba(0, 0, 0, 0.1)",
+                        },
+                        pinch: {
+                            enabled: true,
+                        },
+                        mode: "x",
+                    },
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20000,
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                        tickLength: 12,
+                    },
+                    ticks: {
+                        color: colors.text,
+                        padding: 5,
+                    },
+                },
+                x: {
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                    },
+                    ticks: {
+                        color: colors.text,
+                        padding: 5,
+                        maxRotation: 0,
+                        maxTicksLimit: is24h ? 12 : 9,
+                        callback: (_value, index) => {
+                            return chartDates[index].toLocaleString("en-US", tickDateOptions);
+                        },
+                    },
+                },
+            },
         },
-        series: [{ label: "time" }, { label: "lazer%", stroke: "#ff66aa", width: 2 }],
-        axes: [
-            {
-                stroke: c.text,
-                grid: { stroke: c.grid },
-                ticks: { stroke: c.border },
-                values: dateTimeSettings,
-            },
-            {
-                stroke: c.text,
-                grid: { stroke: c.grid },
-                ticks: { stroke: c.border },
-                values: (_u, vals) => vals.map((v) => (v != null ? `${v.toFixed(1)}%` : "")),
-            },
-        ],
     };
 }

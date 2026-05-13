@@ -29,6 +29,7 @@
         lazer={comparison.lazer}
         sum={comparison.sum}
         name={comparison_name}
+        {is24h}
     />
     <RatioGraph timestamps={ratio.timestamp} values={ratio.ratio} name={ratio_name} {is24h} />
 </div>
