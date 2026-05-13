@@ -5,7 +5,7 @@
 
     import type { Chart as ChartType } from "chart.js";
 
-    let Chart: any;
+    let Chart: typeof ChartType;
 
     let { timestamps, values, name, is24h }: { timestamps: number[]; values: number[]; name: string; is24h?: Boolean } = $props();
 

@@ -6,7 +6,7 @@
     import type { Chart as ChartType } from "chart.js";
     import "chartjs-adapter-temporal/register";
 
-    let Chart: any;
+    let Chart: typeof ChartType;
 
     let {
         timestamps,
