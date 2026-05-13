@@ -18,6 +18,7 @@
         width: 100%;
         flex-direction: row;
         justify-content: space-around;
+        padding-top: 40px;
     }
     span {
         color: #6e6a86;
