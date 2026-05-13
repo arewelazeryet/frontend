@@ -24,7 +24,7 @@ export function getColors() {
           };
 }
 
-const generateAnnotations = (timestamps: number[]) => {
+const generateAnnotations = () => {
     const annotations: Record<string, any> = {};
     for (const milestone of milestones) {
         annotations[`milestone_${milestone.date}`] = {
@@ -101,7 +101,7 @@ export function makeUserRatioConfiguration(
                     },
                 },
                 annotation: {
-                    annotations: is24h ? {} : generateAnnotations(timestamps),
+                    annotations: is24h ? {} : generateAnnotations(),
                 },
                 zoom: {
                     zoom: {
@@ -231,7 +231,7 @@ export function makeUserCountConfiguration(
                     mode: "index",
                 },
                 annotation: {
-                    annotations: is24h ? {} : generateAnnotations(timestamps),
+                    annotations: is24h ? {} : generateAnnotations(),
                 },
                 zoom: {
                     zoom: {
