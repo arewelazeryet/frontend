@@ -24,35 +24,28 @@ export function getColors() {
           };
 }
 
-const getChartDates = (timestamps: number[]) => timestamps.map((ts) => new Date(ts * 1000));
-const getDateIndex = (dates: Date[], dateStr: string) => {
-    return dates.findIndex((d) => d.toISOString().startsWith(dateStr));
-};
-
-const generateAnnotations = (dates: Date[]) => {
+const generateAnnotations = (timestamps: number[]) => {
     const annotations: Record<string, any> = {};
     for (const milestone of milestones) {
-        const index = getDateIndex(dates, milestone.date);
-        if (index !== -1) {
-            annotations[`milestone${index}`] = {
-                type: "line",
-                xMin: index,
-                xMax: index,
-                borderColor: "#88b30080",
-                borderWidth: 1,
-                label: {
-                    content: milestone.label,
-                    display: true,
-                    position: "end",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    font: {
-                        size: 10,
-                        weight: "normal",
-                    },
+        annotations[`milestone_${milestone.date}`] = {
+            type: "line",
+            xMin: Date.parse(milestone.date),
+            xMax: Date.parse(milestone.date),
+            borderColor: "#88b30080",
+            borderWidth: 1,
+            label: {
+                content: milestone.label,
+                display: true,
+                position: "end",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                font: {
+                    size: 10,
+                    weight: "normal",
                 },
-            };
-        }
+            },
+        };
     }
+
     return annotations;
 };
 
@@ -63,26 +56,12 @@ export function makeUserRatioConfiguration(
     is24h: Boolean = false,
 ): ChartConfiguration {
     const colors = getColors();
-    const chartDates = getChartDates(timestamps);
-
-    const tickDateOptions = is24h
-        ? {
-              yeah: undefined,
-              month: undefined,
-              day: undefined,
-              hour: "numeric",
-          }
-        : {
-              month: "short",
-              year: "numeric",
-              day: undefined,
-              weekday: undefined,
-          };
+    const chartTimestamps = timestamps.map((ts) => Math.floor(ts * 1000));
 
     return {
         type: "line",
         data: {
-            labels: chartDates,
+            labels: chartTimestamps,
             datasets: [
                 {
                     label: "lazer%",
@@ -121,15 +100,8 @@ export function makeUserRatioConfiguration(
                         weight: "bold",
                     },
                 },
-                tooltip: {
-                    callbacks: {
-                        title: (context) => {
-                            return chartDates[context[0].dataIndex].toLocaleString("en-US");
-                        },
-                    },
-                },
                 annotation: {
-                    annotations: generateAnnotations(chartDates),
+                    annotations: is24h ? {} : generateAnnotations(timestamps),
                 },
                 zoom: {
                     zoom: {
@@ -161,6 +133,14 @@ export function makeUserRatioConfiguration(
                     },
                 },
                 x: {
+                    type: "timeseries",
+                    time: {
+                        unit: is24h ? "hour" : "month",
+                        displayFormats: {
+                            // @ts-ignore: chart.js types conflict with chartjs-adapter-temporal for some reason
+                            hour: { hour: "numeric" },
+                        },
+                    },
                     grid: {
                         color: colors.grid,
                         lineWidth: 2,
@@ -171,9 +151,6 @@ export function makeUserRatioConfiguration(
                         padding: 5,
                         maxRotation: 0,
                         maxTicksLimit: is24h ? 12 : 9,
-                        callback: (_value, index) => {
-                            return chartDates[index].toLocaleString("en-US", tickDateOptions);
-                        },
                     },
                 },
             },
@@ -190,26 +167,12 @@ export function makeUserCountConfiguration(
     is24h: Boolean = false,
 ): ChartConfiguration {
     const colors = getColors();
-    const chartDates = getChartDates(timestamps);
-
-    const tickDateOptions = is24h
-        ? {
-              yeah: undefined,
-              month: undefined,
-              day: undefined,
-              hour: "numeric",
-          }
-        : {
-              month: "short",
-              year: "numeric",
-              day: undefined,
-              weekday: undefined,
-          };
+    const chartTimestamps = timestamps.map((ts) => Math.floor(ts * 1000));
 
     return {
         type: "line",
         data: {
-            labels: chartDates,
+            labels: chartTimestamps,
             datasets: [
                 {
                     label: "stable",
@@ -266,14 +229,9 @@ export function makeUserCountConfiguration(
                 },
                 tooltip: {
                     mode: "index",
-                    callbacks: {
-                        title: (context) => {
-                            return chartDates[context[0].dataIndex].toLocaleString("en-US");
-                        },
-                    },
                 },
                 annotation: {
-                    annotations: generateAnnotations(chartDates),
+                    annotations: is24h ? {} : generateAnnotations(timestamps),
                 },
                 zoom: {
                     zoom: {
@@ -304,6 +262,14 @@ export function makeUserCountConfiguration(
                     },
                 },
                 x: {
+                    type: "timeseries",
+                    time: {
+                        unit: is24h ? "hour" : "month",
+                        displayFormats: {
+                            // @ts-ignore: chart.js types conflict with chartjs-adapter-temporal for some reason
+                            hour: { hour: "numeric" },
+                        },
+                    },
                     grid: {
                         color: colors.grid,
                         lineWidth: 2,
@@ -314,9 +280,6 @@ export function makeUserCountConfiguration(
                         padding: 5,
                         maxRotation: 0,
                         maxTicksLimit: is24h ? 12 : 9,
-                        callback: (_value, index) => {
-                            return chartDates[index].toLocaleString("en-US", tickDateOptions);
-                        },
                     },
                 },
             },

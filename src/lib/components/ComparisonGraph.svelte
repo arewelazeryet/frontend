@@ -4,6 +4,7 @@
     import { queueRender } from "$utils/renderQueue";
 
     import type { Chart as ChartType } from "chart.js";
+    import "chartjs-adapter-temporal/register";
 
     let Chart: any;
 

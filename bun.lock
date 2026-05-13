@@ -6,6 +6,7 @@
       "name": "stabledeath",
       "dependencies": {
         "chart.js": "^4.5.1",
+        "chartjs-adapter-temporal": "^1.2.3",
         "chartjs-plugin-annotation": "^3.1.0",
         "chartjs-plugin-zoom": "^2.2.0",
       },
@@ -176,6 +177,8 @@
     "axobject-query": ["axobject-query@4.1.0", "", {}, "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="],
 
     "chart.js": ["chart.js@4.5.1", "", { "dependencies": { "@kurkle/color": "^0.3.0" } }, "sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw=="],
+
+    "chartjs-adapter-temporal": ["chartjs-adapter-temporal@1.2.3", "", { "peerDependencies": { "chart.js": ">=4" } }, "sha512-GbWxKI5uwJXG/NNCZWW5p4NYuOv3HcbExNqLx3TH20EUeJx4uyU0kR+FlAFllj1ULSjd6xj5jQMgUGbLbepdhw=="],
 
     "chartjs-plugin-annotation": ["chartjs-plugin-annotation@3.1.0", "", { "peerDependencies": { "chart.js": ">=4.0.0" } }, "sha512-EkAed6/ycXD/7n0ShrlT1T2Hm3acnbFhgkIEJLa0X+M6S16x0zwj1Fv4suv/2bwayCT3jGPdAtI9uLcAMToaQQ=="],
 
