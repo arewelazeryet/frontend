@@ -1,6 +1,6 @@
 <script lang="ts">
     import ComparisonGraph from "$components/ComparisonGraph.svelte";
-    import RatioGraphChartJS from "./RatioGraphChartJS.svelte";
+    import RatioGraph from "./RatioGraph.svelte";
 
     let {
         comparison,
@@ -30,7 +30,7 @@
         sum={comparison.sum}
         name={comparison_name}
     />
-    <RatioGraphChartJS timestamps={ratio.timestamp} values={ratio.ratio} name={ratio_name} {is24h} />
+    <RatioGraph timestamps={ratio.timestamp} values={ratio.ratio} name={ratio_name} {is24h} />
 </div>
 
 <style>
