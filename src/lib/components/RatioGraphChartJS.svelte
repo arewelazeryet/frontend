@@ -7,7 +7,7 @@
 
     let Chart: any;
 
-    let { timestamps, values, name }: { timestamps: number[]; values: number[]; name: string } = $props();
+    let { timestamps, values, name, is24h }: { timestamps: number[]; values: number[]; name: string; is24h?: Boolean } = $props();
 
     let chartCanvas: HTMLCanvasElement;
     let graphChart: ChartType | undefined;
@@ -23,7 +23,11 @@
 
         lastWidth = chartCanvas.clientWidth;
 
-        graphChart = new Chart(chartCanvas, makeUserRatioConfiguration(timestamps, values, name));
+        graphChart = new Chart(chartCanvas, makeUserRatioConfiguration(timestamps, values, name, is24h));
+    }
+
+    function handleDoubleclick() {
+        graphChart?.resetZoom();
     }
 
     function recreatePlot() {
@@ -143,7 +147,7 @@
 </script>
 
 <div style="height: 450px; max-width: 700px; width: 100%">
-    <canvas bind:this={chartCanvas} style="width: 100%; height: 100%;"></canvas>
+    <canvas bind:this={chartCanvas} ondblclick={handleDoubleclick} style="width: 100%; height: 100%;"></canvas>
 </div>
 
 <style>

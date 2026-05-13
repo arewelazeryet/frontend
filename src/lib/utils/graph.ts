@@ -13,10 +13,10 @@ export const dateTimeSettings = [
 
 const milestones = [
     { date: "2024-01-29", label: "pp release" },
-    { date: "2024-07-24", label: "Daily challenges" },
-    { date: "2025-06-04", label: "Song select v2" },
-    { date: "2025-11-20", label: "Updated download page" },
-    { date: "2026-04-17", label: "Ranked play" },
+    { date: "2024-07-24", label: "daily challenges" },
+    { date: "2025-06-04", label: "song select v2" },
+    { date: "2025-11-20", label: "updated download page" },
+    { date: "2026-04-17", label: "ranked play" },
 ];
 
 // Rosé Pine Dawn (light) / Rosé Pine (dark)
@@ -67,9 +67,28 @@ const generateAnnotations = (dates: Date[]) => {
     return annotations;
 };
 
-export function makeUserRatioConfiguration(timestamps: number[], values: number[], name: string): ChartConfiguration {
+export function makeUserRatioConfiguration(
+    timestamps: number[],
+    values: number[],
+    name: string,
+    is24h: Boolean = false,
+): ChartConfiguration {
     const colors = getColors();
     const chartDates = getChartDates(timestamps);
+
+    const tickDateOptions = is24h
+        ? {
+              yeah: undefined,
+              month: undefined,
+              day: undefined,
+              hour: "numeric",
+          }
+        : {
+              month: "short",
+              year: "numeric",
+              day: undefined,
+              weekday: undefined,
+          };
 
     return {
         type: "line",
@@ -98,6 +117,10 @@ export function makeUserRatioConfiguration(timestamps: number[], values: number[
                     position: "bottom",
                     labels: {
                         color: colors.text,
+                        font: {
+                            size: 14,
+                            weight: "bold",
+                        },
                     },
                 },
                 title: {
@@ -137,28 +160,30 @@ export function makeUserRatioConfiguration(timestamps: number[], values: number[
                     beginAtZero: true,
                     max: 100,
                     grid: {
-                        color: "#26233a",
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                        tickLength: 12,
                     },
                     ticks: {
                         color: colors.text,
+                        padding: 5,
                         callback: (value) => `${value}%`,
                     },
                 },
                 x: {
                     grid: {
                         color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
                     },
                     ticks: {
                         color: colors.text,
+                        padding: 5,
                         maxRotation: 0,
-                        maxTicksLimit: 10,
+                        maxTicksLimit: is24h ? 12 : 9,
                         callback: (_value, index) => {
-                            return chartDates[index].toLocaleDateString("en-US", {
-                                month: "short",
-                                year: "numeric",
-                                day: undefined,
-                                weekday: undefined,
-                            });
+                            return chartDates[index].toLocaleString("en-US", tickDateOptions);
                         },
                     },
                 },
@@ -211,10 +236,7 @@ export function makeUserRatioOptions(width: number, id: string, title: string): 
         scales: {
             y: { min: 0, max: 100 },
         },
-        series: [
-            { label: "time" },
-            { label: "lazer%", stroke: "#ff66aa", width: 2 },
-        ],
+        series: [{ label: "time" }, { label: "lazer%", stroke: "#ff66aa", width: 2 }],
         axes: [
             {
                 stroke: c.text,
