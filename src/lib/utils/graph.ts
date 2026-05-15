@@ -115,7 +115,7 @@ export function makeUserRatioConfiguration(
                         pinch: {
                             enabled: true,
                         },
-                        mode: "x",
+                        mode: "xy",
                     },
                 },
             },
@@ -245,7 +245,7 @@ export function makeUserCountConfiguration(
                         pinch: {
                             enabled: true,
                         },
-                        mode: "x",
+                        mode: "xy",
                     },
                 },
             },
