@@ -21,7 +21,7 @@
         lazer: number[];
         sum: number[];
         name: string;
-        is24h?: Boolean;
+        is24h?: boolean;
     } = $props();
 
     let chartCanvas: HTMLCanvasElement;
@@ -84,7 +84,7 @@
 
     $effect(() => {
         if (graphChart) {
-            graphChart.data.labels = timestamps;
+            graphChart.data.labels = timestamps.map((ts) => Math.floor(ts * 1000));
             graphChart.data.datasets[0].data = lazer;
             graphChart.data.datasets[1].data = stable;
             graphChart.data.datasets[2].data = sum;

@@ -7,7 +7,7 @@
 
     let Chart: typeof ChartType;
 
-    let { timestamps, values, name, is24h }: { timestamps: number[]; values: number[]; name: string; is24h?: Boolean } = $props();
+    let { timestamps, values, name, is24h }: { timestamps: number[]; values: number[]; name: string; is24h?: boolean } = $props();
 
     let chartCanvas: HTMLCanvasElement;
     let graphChart: ChartType | undefined;
@@ -69,7 +69,7 @@
 
     $effect(() => {
         if (graphChart) {
-            graphChart.data.labels = timestamps;
+            graphChart.data.labels = timestamps.map((ts) => Math.floor(ts * 1000));
             graphChart.data.datasets[0].data = values;
             graphChart.update();
         }
