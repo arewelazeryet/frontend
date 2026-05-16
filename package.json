@@ -12,9 +12,10 @@
   },
   "dependencies": {
     "chart.js": "^4.5.1",
-    "chartjs-adapter-temporal": "^1.2.3",
+    "chartjs-adapter-dayjs-4": "^1.0.4",
     "chartjs-plugin-annotation": "^3.1.0",
-    "chartjs-plugin-zoom": "^2.2.0"
+    "chartjs-plugin-zoom": "^2.2.0",
+    "dayjs": "^1.11.20"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.4",

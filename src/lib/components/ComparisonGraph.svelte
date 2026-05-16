@@ -4,7 +4,7 @@
     import { queueRender } from "$utils/renderQueue";
 
     import type { Chart as ChartType } from "chart.js";
-    import "chartjs-adapter-temporal/register";
+    import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
 
     let Chart: typeof ChartType;
 
@@ -177,13 +177,9 @@
     });
 </script>
 
-<div style="height: 450px; max-width: 700px; padding: 0 10px; width: 100%">
+<div style="height: 480px; max-width: 700px; padding: 15px 10px; width: 100%">
     {#if !mounted}
         <span>Waiting for the chart to load...</span>
     {/if}
-    <canvas
-        bind:this={chartCanvas}
-        ondblclick={handleDoubleclick}
-        style="width: 100%; height: 100%;"
-    ></canvas>
+    <canvas bind:this={chartCanvas} ondblclick={handleDoubleclick}></canvas>
 </div>

@@ -1,5 +1,6 @@
 import type { ChartConfiguration } from "chart.js";
 import type { AnnotationOptions } from "chartjs-plugin-annotation";
+import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
 
 const milestones = [
     { date: "2024-01-29", label: "pp release" },
@@ -26,8 +27,39 @@ export function getColors() {
           };
 }
 
+function getZoomOptions(is24h: boolean) {
+    const colors = getColors();
+    const zoomOptions: ZoomPluginOptions = {
+        zoom: {
+            drag: {
+                enabled: true,
+                backgroundColor: "rgba(0, 0, 0, 0.1)",
+                borderColor: colors.text,
+                borderWidth: 0.25,
+            },
+            pinch: {
+                enabled: true,
+            },
+            mode: "xy",
+            onZoomComplete({ chart }) {
+                if (!chart.options.scales?.x?.time) return;
+                if (chart.isZoomedOrPanned()) {
+                    chart.options.scales.x.time = {};
+                } else {
+                    chart.options.scales.x.time = {
+                        unit: is24h ? "hour" : "month",
+                    };
+                }
+                chart.update();
+            },
+        },
+    };
+    return zoomOptions;
+}
+
 const generateAnnotations = () => {
     const annotations: Record<string, AnnotationOptions> = {};
+    const colors = getColors();
     for (const milestone of milestones) {
         annotations[`milestone_${milestone.date}`] = {
             type: "line",
@@ -39,8 +71,9 @@ const generateAnnotations = () => {
                 content: milestone.label,
                 display: true,
                 position: "end",
-                backgroundColor: "#26233a",
-                borderColor: "#524f67",
+                color: colors.text,
+                backgroundColor: colors.grid + "cc", // slight transparency
+                borderColor: colors.border,
                 borderWidth: 1,
                 font: {
                     size: 10,
@@ -57,7 +90,7 @@ export function makeUserRatioConfiguration(
     timestamps: number[],
     values: number[],
     name: string,
-    is24h: Boolean = false,
+    is24h: boolean = false,
 ): ChartConfiguration {
     const colors = getColors();
     const chartTimestamps = timestamps.map((ts) => Math.floor(ts * 1000));
@@ -73,6 +106,7 @@ export function makeUserRatioConfiguration(
                     borderColor: "#ff66aa",
                     borderWidth: 2,
                     pointRadius: 0,
+                    pointHitRadius: 15,
                     pointHoverRadius: 5,
                 },
             ],
@@ -82,7 +116,7 @@ export function makeUserRatioConfiguration(
             maintainAspectRatio: false,
             interaction: {
                 mode: "nearest",
-                intersect: false,
+                intersect: true,
             },
             plugins: {
                 legend: {
@@ -107,18 +141,7 @@ export function makeUserRatioConfiguration(
                 annotation: {
                     annotations: is24h ? {} : generateAnnotations(),
                 },
-                zoom: {
-                    zoom: {
-                        drag: {
-                            enabled: true,
-                            backgroundColor: "rgba(0, 0, 0, 0.1)",
-                        },
-                        pinch: {
-                            enabled: true,
-                        },
-                        mode: "xy",
-                    },
-                },
+                zoom: getZoomOptions(is24h),
             },
             scales: {
                 y: {
@@ -133,17 +156,17 @@ export function makeUserRatioConfiguration(
                     ticks: {
                         color: colors.text,
                         padding: 5,
-                        callback: (value) => `${Math.round(value as number)}%`,
+                        callback: (value) =>
+                            (Number(value) / 100).toLocaleString(undefined, {
+                                style: "percent",
+                                maximumFractionDigits: 1,
+                            }),
                     },
                 },
                 x: {
                     type: "timeseries",
                     time: {
                         unit: is24h ? "hour" : "month",
-                        displayFormats: {
-                            // @ts-ignore: chart.js types conflict with chartjs-adapter-temporal for some reason
-                            hour: { hour: "numeric" },
-                        },
                     },
                     grid: {
                         color: colors.grid,
@@ -168,7 +191,7 @@ export function makeUserCountConfiguration(
     lazer: number[],
     sum: number[],
     name: string,
-    is24h: Boolean = false,
+    is24h: boolean = false,
 ): ChartConfiguration {
     const colors = getColors();
     const chartTimestamps = timestamps.map((ts) => Math.floor(ts * 1000));
@@ -203,12 +226,13 @@ export function makeUserCountConfiguration(
             maintainAspectRatio: false,
             interaction: {
                 mode: "nearest",
-                intersect: false,
+                intersect: true,
             },
             elements: {
                 point: {
                     radius: 0,
                     hoverRadius: 5,
+                    hitRadius: 15,
                 },
             },
             plugins: {
@@ -233,22 +257,12 @@ export function makeUserCountConfiguration(
                 },
                 tooltip: {
                     mode: "index",
+                    position: "nearest",
                 },
                 annotation: {
                     annotations: is24h ? {} : generateAnnotations(),
                 },
-                zoom: {
-                    zoom: {
-                        drag: {
-                            enabled: true,
-                            backgroundColor: "rgba(0, 0, 0, 0.1)",
-                        },
-                        pinch: {
-                            enabled: true,
-                        },
-                        mode: "xy",
-                    },
-                },
+                zoom: getZoomOptions(is24h),
             },
             scales: {
                 y: {
@@ -263,16 +277,13 @@ export function makeUserCountConfiguration(
                     ticks: {
                         color: colors.text,
                         padding: 5,
+                        callback: (value) => value.toLocaleString(undefined, { maximumFractionDigits: 0 }),
                     },
                 },
                 x: {
                     type: "timeseries",
                     time: {
                         unit: is24h ? "hour" : "month",
-                        displayFormats: {
-                            // @ts-ignore: chart.js types conflict with chartjs-adapter-temporal for some reason
-                            hour: { hour: "numeric" },
-                        },
                     },
                     grid: {
                         color: colors.grid,
