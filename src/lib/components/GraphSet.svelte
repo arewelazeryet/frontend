@@ -48,12 +48,6 @@
     .graph-box {
         display: flex;
     }
-    @media (max-width: 600px) {
-        .graph-box,
-        .children {
-            display: none;
-        }
-    }
     @media (max-width: 1599px) {
         .graph-box {
             flex-direction: column;
