@@ -8,7 +8,6 @@
         ratio,
         ratio_name,
         is24h,
-        children,
     }: {
         comparison: {
             timestamp: number[];
@@ -20,13 +19,9 @@
         ratio: { timestamp: number[]; ratio: number[] };
         ratio_name: string;
         is24h?: boolean;
-        children: any;
     } = $props();
 </script>
 
-<div class="children">
-    {@render children()}
-</div>
 <div class="graph-box">
     <ComparisonGraph
         timestamps={comparison.timestamp}
@@ -47,12 +42,6 @@
 <style>
     .graph-box {
         display: flex;
-    }
-    @media (max-width: 600px) {
-        .graph-box,
-        .children {
-            display: none;
-        }
     }
     @media (max-width: 1599px) {
         .graph-box {
