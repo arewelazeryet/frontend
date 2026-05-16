@@ -133,7 +133,7 @@ export function makeUserRatioConfiguration(
                     ticks: {
                         color: colors.text,
                         padding: 5,
-                        callback: (value) => `${value}%`,
+                        callback: (value) => `${Math.round(value as number)}%`,
                     },
                 },
                 x: {
