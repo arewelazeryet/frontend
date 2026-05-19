@@ -1,29 +1,29 @@
 {
-  "name": "stabledeath",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "prepare": "svelte-kit sync",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "start": "bun ./build/index.js"
-  },
-  "dependencies": {
-    "chart.js": "^4.5.1",
-    "chartjs-adapter-dayjs-4": "^1.0.4",
-    "chartjs-plugin-annotation": "^3.1.0",
-    "chartjs-plugin-zoom": "^2.2.0",
-    "dayjs": "^1.11.20"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-node": "^5.5.4",
-    "@sveltejs/kit": "^2.59.1",
-    "@sveltejs/vite-plugin-svelte": "^6.2.4",
-    "@types/node": "^25.6.2",
-    "svelte": "^5.55.5",
-    "svelte-check": "^4.4.8",
-    "vite": "^7.3.3"
-  }
+    "name": "stabledeath",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "preview": "vite preview",
+        "prepare": "svelte-kit sync",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "start": "bun ./build/index.js"
+    },
+    "dependencies": {
+        "chart.js": "^4.5.1",
+        "chartjs-adapter-dayjs-4": "^1.0.4",
+        "chartjs-plugin-annotation": "^3.1.0",
+        "chartjs-plugin-zoom": "^2.2.0",
+        "dayjs": "^1.11.20"
+    },
+    "devDependencies": {
+        "@sveltejs/adapter-node": "^5.5.4",
+        "@sveltejs/kit": "^2.60.1",
+        "@sveltejs/vite-plugin-svelte": "^6.2.4",
+        "@types/node": "^25.9.0",
+        "svelte": "^5.55.8",
+        "svelte-check": "^4.4.8",
+        "vite": "^8.0.13"
+    }
 }
