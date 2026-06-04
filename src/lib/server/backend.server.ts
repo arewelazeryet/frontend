@@ -109,7 +109,7 @@ function normalizePointLine(response: PointLineResponse): PointLineResponse {
 }
 
 export async function getCurrent(fetch: LoadFetch) {
-    return cached("bars:current", 5 * MINUTE, async () =>
+    return cached("bars:current", 1 * MINUTE, async () =>
         normalizeSinglePoint(
             await getJson<SinglePointResponse>(fetch, "/api/bars/current"),
         ),
@@ -180,7 +180,7 @@ export async function getRatioEstimate(fetch: LoadFetch, percentage: number) {
 }
 
 export async function getHomeView(fetch: LoadFetch) {
-    return cached("view:home", 5 * MINUTE, async () => {
+    return cached("view:home", 1 * MINUTE, async () => {
         const [
             changelogs,
             peak,

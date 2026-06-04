@@ -24,7 +24,7 @@
     onMount(() => {
         const interval = setInterval(() => {
             invalidate("app:home-view");
-        }, 300000);
+        }, 60000);
 
         return () => {
             clearInterval(interval);
