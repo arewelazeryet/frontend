@@ -51,7 +51,22 @@
 </script>
 
 <svelte:head>
+    <!-- SEO -->
+    <title>Are we lazer yet?</title>
+    <meta
+        name="description"
+        content="are we lazer yet - osu!lazer user share tracker"
+    />
+    <link rel="canonical" href="https://arewelazeryet.chiffa.lol" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
     <link rel="icon" href={favicon} />
+    <meta
+        name="google-site-verification"
+        content="-1QvXnhPUOhjX9OFNWRLVbN3707RteA8NvI0fAvkh_U"
+    />
+
+    <!-- opengraph -->
     <meta
         property="og:title"
         content="arewelazeryet - osu!lazer user share tracker"
