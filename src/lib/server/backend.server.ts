@@ -1,8 +1,6 @@
 import { env } from "$env/dynamic/private";
 
 const Url = env._URL ?? "http://127.0.0.1:6726";
-const SECOND = 1000;
-const MINUTE = 60 * SECOND;
 
 export const VIEW_DEPENDENCY = "app:home-view";
 export const VIEW_CACHE_CONTROL =
@@ -32,57 +30,6 @@ export type RegressionResult = {
 
 type LoadFetch = typeof fetch;
 
-type CacheEntry<T> = {
-    expires: number;
-    promise?: Promise<T>;
-    value?: T;
-};
-
-const cache = new Map<string, CacheEntry<unknown>>();
-
-async function cached<T>(
-    key: string,
-    ttl: number,
-    loader: () => Promise<T>,
-): Promise<T> {
-    const now = Date.now();
-    const existing = cache.get(key) as CacheEntry<T> | undefined;
-
-    if (existing?.value && existing.expires > now) {
-        return existing.value;
-    }
-
-    if (existing?.promise) {
-        return existing.promise;
-    }
-
-    const promise = loader()
-        .then((value) => {
-            cache.set(key, { value, expires: Date.now() + ttl });
-            return value;
-        })
-        .catch((error) => {
-            if (existing?.value) {
-                cache.set(key, {
-                    value: existing.value,
-                    expires: Date.now() + Math.min(ttl, MINUTE),
-                });
-                return existing.value;
-            }
-
-            cache.delete(key);
-            throw error;
-        });
-
-    cache.set(key, {
-        value: existing?.value,
-        expires: existing?.expires ?? 0,
-        promise,
-    });
-
-    return promise;
-}
-
 async function getJson<T>(fetch: LoadFetch, path: string): Promise<T> {
     const response = await fetch(`${Url}${path}`);
 
@@ -109,106 +56,85 @@ function normalizePointLine(response: PointLineResponse): PointLineResponse {
 }
 
 export async function getCurrent(fetch: LoadFetch) {
-    return cached("bars:current", 1 * MINUTE, async () =>
-        normalizeSinglePoint(
-            await getJson<SinglePointResponse>(fetch, "/api/bars/current"),
-        ),
+    return normalizeSinglePoint(
+        await getJson<SinglePointResponse>(fetch, "/api/bars/current"),
     );
 }
 
 export async function getPeakUsers(fetch: LoadFetch) {
-    return cached("bars:peak_users", 5 * MINUTE, async () =>
-        normalizeSinglePoint(
-            await getJson<SinglePointResponse>(fetch, "/api/bars/peak_users"),
-        ),
+    return normalizeSinglePoint(
+        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_users"),
     );
 }
 
 export async function getPeakRatio(fetch: LoadFetch) {
-    return cached("bars:peak_ratio", 5 * MINUTE, async () =>
-        normalizeSinglePoint(
-            await getJson<SinglePointResponse>(fetch, "/api/bars/peak_ratio"),
-        ),
+    return normalizeSinglePoint(
+        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_ratio"),
     );
 }
 
 export async function getPeakPercentile(fetch: LoadFetch) {
-    return cached("bars:peak_percentile", 5 * MINUTE, async () =>
-        normalizeSinglePoint(
-            await getJson<SinglePointResponse>(
-                fetch,
-                "/api/bars/peak_percentile",
-            ),
-        ),
+    return normalizeSinglePoint(
+        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_percentile"),
     );
 }
 
 export async function getDayGraph(fetch: LoadFetch) {
-    return cached("graphs:day", 5 * MINUTE, async () =>
-        normalizePointLine(
-            await getJson<PointLineResponse>(fetch, "/api/graphs/day"),
-        ),
+    return normalizePointLine(
+        await getJson<PointLineResponse>(fetch, "/api/graphs/day"),
     );
 }
 
 export async function getHistoryGraph(fetch: LoadFetch) {
-    return cached("graphs:history", 60 * MINUTE, async () =>
-        normalizePointLine(
-            await getJson<PointLineResponse>(fetch, "/api/graphs/history"),
-        ),
+    return normalizePointLine(
+        await getJson<PointLineResponse>(fetch, "/api/graphs/history"),
     );
 }
 
 /// A bit dirty but requires Redis to clean up so I cba yet
 export async function getHistoryGraphWeekly(fetch: LoadFetch) {
-    return cached("graphs:history:week", 60 * MINUTE, async () =>
-        normalizePointLine(
-            await getJson<PointLineResponse>(
-                fetch,
-                "/api/graphs/history?bucket_size=Week",
-            ),
+    return normalizePointLine(
+        await getJson<PointLineResponse>(
+            fetch,
+            "/api/graphs/history?bucket_size=Week",
         ),
     );
 }
 export async function getRatioEstimate(fetch: LoadFetch, percentage: number) {
-    return cached(`graphs:ratio_estimate:${percentage}`, 5 * MINUTE, async () =>
-        getJson<RegressionResult>(
-            fetch,
-            `/api/graphs/ratio_estimate/${percentage}`,
-        ),
+    return getJson<RegressionResult>(
+        fetch,
+        `/api/graphs/ratio_estimate/${percentage}`,
     );
 }
 
 export async function getHomeView(fetch: LoadFetch) {
-    return cached("view:home", 1 * MINUTE, async () => {
-        const [
-            changelogs,
-            peak,
-            peakRel,
-            nearPeak,
-            dayGraph,
-            historyGraph,
-            historyGraphWeekly,
-        ] = await Promise.all([
-            getCurrent(fetch),
-            getPeakUsers(fetch),
-            getPeakRatio(fetch),
-            getPeakPercentile(fetch),
-            getDayGraph(fetch),
-            getHistoryGraph(fetch),
-            getHistoryGraphWeekly(fetch),
-        ]);
+    const [
+        changelogs,
+        peak,
+        peakRel,
+        nearPeak,
+        dayGraph,
+        historyGraph,
+        historyGraphWeekly,
+    ] = await Promise.all([
+        getCurrent(fetch),
+        getPeakUsers(fetch),
+        getPeakRatio(fetch),
+        getPeakPercentile(fetch),
+        getDayGraph(fetch),
+        getHistoryGraph(fetch),
+        getHistoryGraphWeekly(fetch),
+    ]);
 
-        return {
-            changelogs,
-            peak,
-            peakRel,
-            nearPeak,
-            userCountData: dayGraph,
-            historicUserCount: {
-                daily: historyGraph,
-                weekly: historyGraphWeekly,
-            },
-        };
-    });
+    return {
+        changelogs,
+        peak,
+        peakRel,
+        nearPeak,
+        userCountData: dayGraph,
+        historicUserCount: {
+            daily: historyGraph,
+            weekly: historyGraphWeekly,
+        },
+    };
 }
