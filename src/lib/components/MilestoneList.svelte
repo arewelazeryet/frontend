@@ -12,13 +12,13 @@
     ];
 
     const tba = [
-        "majority on lazer",
-        "new score multipliers",
-        "rates/mirror ranked",
-        "results screen v2",
-        "OWC on lazer",
-        "app store release",
-        "stable deprecated",
+        { date: 1781740800000, milestone: "majority on lazer" },
+        { date: null, milestone: "new score multipliers" },
+        { date: null, milestone: "rates/mirror ranked" },
+        { date: null, milestone: "results screen v2" },
+        { date: null, milestone: "OWC on lazer" },
+        { date: null, milestone: "app store release" },
+        { date: null, milestone: "stable deprecated" },
     ];
 </script>
 
@@ -26,10 +26,12 @@
     <h2>cool milestones</h2>
     <div class="card-container">
         {#each reached as _, i}
-            <Milestone row={i + 1} date={reached[i].date}
+            <Milestone row={i + 1} date={reached[i].date} column="left"
                 >{reached[i].milestone}</Milestone
             >
-            <Milestone row={i + 1} date={null}>{tba[i]}</Milestone>
+            <Milestone row={i + 1} date={tba[i].date} column="right"
+                >{tba[i].milestone}</Milestone
+            >
         {/each}
     </div>
 </div>
