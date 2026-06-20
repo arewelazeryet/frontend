@@ -13,7 +13,7 @@
 
     const tba = [
         { date: 1781740800000, milestone: "majority on lazer" },
-        { date: null, milestone: "new score multipliers" },
+        { date: 1781913600000, milestone: "new mod multipliers" },
         { date: null, milestone: "rates/mirror ranked" },
         { date: null, milestone: "results screen v2" },
         { date: null, milestone: "OWC on lazer" },

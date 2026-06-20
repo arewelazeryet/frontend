@@ -9,6 +9,7 @@ const milestones = [
     { date: "2025-06-04", label: "song select v2" },
     { date: "2025-11-20", label: "updated download page" },
     { date: "2026-04-17", label: "ranked play" },
+    { date: "2026-06-20", label: "mod multiplier changes" },
 ];
 
 // Rosé Pine Dawn (light) / Rosé Pine (dark)
