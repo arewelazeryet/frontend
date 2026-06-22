@@ -74,6 +74,7 @@
     <meta property="og:type" content="website" />
     {#if changelogs}
         <meta property="og:description" content={opengraphHeader()} />
+        <meta property="og:image" content="https://areweimageyet.chiffa.lol/signature.png" />
     {/if}
 </svelte:head>
 
