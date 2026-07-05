@@ -1,6 +1,13 @@
 import type { ChartConfiguration } from "chart.js";
 import type { AnnotationOptions } from "chartjs-plugin-annotation";
 import type { ZoomPluginOptions } from "chartjs-plugin-zoom/types/options";
+import {
+    aggregateByClientType,
+    getTimestamps,
+    type AggregateFieldUnion,
+    type AggregateResponse,
+    type Bucket,
+} from "./types";
 
 const milestones = [
     { date: "2024-01-29", label: "pp release" },
@@ -299,6 +306,252 @@ export function makeUserCountConfiguration(
                         padding: 5,
                         maxRotation: 0,
                         maxTicksLimit: is24h ? 12 : 9,
+                    },
+                },
+            },
+        },
+    };
+}
+
+export function maxLabelSize(field: AggregateFieldUnion) {
+    switch (field) {
+        case "unique_user_count":
+            return undefined;
+        case "unique_beatmap_count":
+            return undefined;
+        case "total_daily_scores":
+            return 1000000;
+        case "daily_scores_with_replays":
+            return undefined;
+        case "daily_perfect_combos":
+            return undefined;
+        case "daily_min_pp":
+            return 1;
+        case "daily_max_pp":
+            return 2500;
+        case "daily_sum_pp":
+            return undefined;
+        case "daily_sum_total_score":
+            return undefined;
+        case "daily_sum_classic_total_score":
+            return undefined;
+        case "daily_sum_legacy_total_score":
+            return undefined;
+        case "daily_max_classic_total_score":
+            return undefined;
+        case "daily_max_legacy_total_score":
+            return undefined;
+        case "daily_average_accuracy":
+            return undefined;
+        case "daily_peak_combo":
+            return 25000;
+    }
+}
+
+export function makeAggregateConfiguration(
+    values: AggregateResponse[],
+    ruleset: "osu" | "taiko" | "mania" | "catch" | "all",
+    field: AggregateFieldUnion,
+): ChartConfiguration {
+    const colors = getColors();
+    let filteredData: AggregateResponse[] = values;
+    if (ruleset != "all") {
+        filteredData = values.filter((entry) => entry.ruleset_id === ruleset);
+    } else {
+        filteredData = aggregateByClientType(values);
+        console.log(filteredData[0], values[0]);
+    }
+    const chartTimestamps = getTimestamps(filteredData).map((ts) =>
+        Math.floor(ts * 1000),
+    );
+
+    return {
+        type: "bar",
+        data: {
+            labels: chartTimestamps,
+            datasets: [
+                {
+                    label: "lazer",
+                    data: filteredData
+                        .filter((ts) => ts.client_type === "lazer")
+                        .map((ts) => ts[field]),
+                    borderColor: "#ff66aa",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 15,
+                    pointHoverRadius: 5,
+                },
+                {
+                    label: "stable",
+                    data: filteredData
+                        .filter((ts) => ts.client_type === "stable")
+                        .map((ts) => ts[field]),
+                    borderColor: "#66ccff",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 15,
+                    pointHoverRadius: 5,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "nearest",
+                intersect: true,
+            },
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: colors.text,
+                        font: {
+                            size: 14,
+                            weight: "bold",
+                        },
+                    },
+                },
+                title: {
+                    display: true,
+                    text: field,
+                    color: colors.text,
+                    font: {
+                        size: 18,
+                        weight: "bold",
+                    },
+                },
+                zoom: getZoomOptions(true),
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: maxLabelSize(field),
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                        tickLength: 12,
+                    },
+                    ticks: {
+                        color: colors.text,
+                        padding: 5,
+                    },
+                },
+                x: {
+                    type: "timeseries",
+                    time: {
+                        unit: "month",
+                    },
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                    },
+                    ticks: {
+                        color: colors.text,
+                        padding: 5,
+                        maxRotation: 0,
+                        maxTicksLimit: 9,
+                    },
+                },
+            },
+        },
+    };
+}
+
+export function makeBucketConfiguration(values: Bucket[]) {
+    const colors = getColors();
+    let filteredData: Bucket[] = values;
+    return {
+        type: "bar",
+        data: {
+            labels: filteredData.map((ts) => ts.bucket),
+            datasets: [
+                {
+                    label: "lazer",
+                    data: filteredData.map((ts) => ts.lazer),
+                    borderColor: "#ff66aa",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 15,
+                    pointHoverRadius: 5,
+                },
+                {
+                    label: "stable",
+                    data: filteredData.map((ts) => ts.stable),
+                    borderColor: "#66ccff",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 15,
+                    pointHoverRadius: 5,
+                },
+                {
+                    label: "both",
+                    data: filteredData.map((ts) => ts.both),
+                    borderColor: "#eeffcc",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHitRadius: 15,
+                    pointHoverRadius: 5,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: "nearest",
+                intersect: true,
+            },
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: colors.text,
+                        font: {
+                            size: 14,
+                            weight: "bold",
+                        },
+                    },
+                },
+                title: {
+                    display: true,
+                    text: "User distribution per user ID bucket",
+                    color: colors.text,
+                    font: {
+                        size: 18,
+                        weight: "bold",
+                    },
+                },
+                zoom: getZoomOptions(true),
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                        tickLength: 12,
+                    },
+                    ticks: {
+                        color: colors.text,
+                        padding: 5,
+                    },
+                },
+                x: {
+                    grid: {
+                        color: colors.grid,
+                        lineWidth: 2,
+                        tickColor: colors.border,
+                    },
+                    ticks: {
+                        autoSkip: false,
+                        color: colors.text,
+                        padding: 5,
+                        maxRotation: 0,
+                        maxTicksLimit: 9,
                     },
                 },
             },

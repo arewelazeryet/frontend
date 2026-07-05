@@ -24,3 +24,120 @@ export function dateOnly(timestamp: number): string {
         timeZone: "UTC",
     });
 }
+
+export type Bucket = {
+    stable: number;
+    lazer: number;
+    both: number;
+    bucket: string;
+};
+export function sortByBucketAscending(buckets: Bucket[]): Bucket[] {
+    return [...buckets].sort((a, b) => {
+        const startA = parseFloat(a.bucket.split(" - ")[0]);
+        const startB = parseFloat(b.bucket.split(" - ")[0]);
+        return startA - startB;
+    });
+}
+
+/// Raw response type without data casting
+export type AggregateResponseRaw = {
+    // Day timestamp
+    day_bucket: number;
+    // Ruleset ID stringified
+    ruleset_id: "osu" | "taiko" | "mania" | "catch";
+    // Client type stringified
+    client_type: "stable" | "lazer";
+
+    unique_user_count: number;
+    unique_beatmap_count: number;
+
+    total_daily_scores: number;
+    daily_scores_with_replays: number;
+    daily_perfect_combos: number;
+
+    daily_min_pp: number;
+    daily_max_pp: number;
+    daily_sum_pp: number;
+
+    daily_sum_total_score: string;
+    daily_sum_classic_total_score: string;
+    daily_sum_legacy_total_score: string;
+    daily_max_classic_total_score: number;
+    daily_max_legacy_total_score: number;
+    daily_average_accuracy: number;
+    daily_peak_combo: number;
+};
+
+export const AggregateFieldList = [
+    "unique_user_count",
+    "unique_beatmap_count",
+    "total_daily_scores",
+    "daily_scores_with_replays",
+    "daily_perfect_combos",
+    "daily_min_pp",
+    "daily_max_pp",
+    "daily_sum_pp",
+    "daily_sum_total_score",
+    "daily_sum_classic_total_score",
+    "daily_sum_legacy_total_score",
+    "daily_max_classic_total_score",
+    "daily_max_legacy_total_score",
+    "daily_average_accuracy",
+    "daily_peak_combo",
+] as const;
+
+export type AggregateFieldUnion = (typeof AggregateFieldList)[number];
+
+export type AggregateFields = Record<
+    (typeof AggregateFieldList)[number],
+    number
+>;
+
+export type AggregateResponse = {
+    // Day timestamp
+    day_bucket: number;
+    // Ruleset ID stringified
+    ruleset_id: "osu" | "taiko" | "mania" | "catch";
+    // Client type stringified
+    client_type: "stable" | "lazer";
+} & AggregateFields;
+
+export function aggregateByClientType(
+    rows: AggregateResponse[],
+): AggregateResponse[] {
+    const grouped = new Map<string, AggregateResponse>();
+
+    for (const row of rows) {
+        const key = `${row.day_bucket}:${row.client_type}`;
+
+        const existing = grouped.get(key);
+
+        if (!existing) {
+            grouped.set(key, { ...row });
+            continue;
+        }
+
+        for (const field of AggregateFieldList) {
+            existing[field] += row[field];
+        }
+    }
+
+    return [...grouped.values()];
+}
+
+export function getTimestamps(rows: AggregateResponse[]) {
+    return [...new Set(rows.map((r) => r.day_bucket))];
+}
+
+export function fromRaw(raw: AggregateResponseRaw): AggregateResponse {
+    return {
+        ...raw,
+        daily_sum_total_score: Number.parseInt(raw.daily_sum_total_score),
+        daily_sum_classic_total_score: Number.parseInt(
+            raw.daily_sum_classic_total_score,
+        ),
+        daily_sum_legacy_total_score: Number.parseInt(
+            raw.daily_sum_legacy_total_score,
+        ),
+    };
+}

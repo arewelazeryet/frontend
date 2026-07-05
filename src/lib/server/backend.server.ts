@@ -1,6 +1,7 @@
 import { env } from "$env/dynamic/private";
 
-const Url = env._URL ?? "http://127.0.0.1:6726";
+const MAIN_BACKEND = env._URL ?? "http://127.0.0.1:6726";
+const USHIO = env._USHIO ?? "http://127.0.0.1:7727";
 
 export const VIEW_DEPENDENCY = "app:home-view";
 export const VIEW_CACHE_CONTROL =
@@ -28,16 +29,25 @@ export type RegressionResult = {
     estimated_timestamp: number;
 };
 
-type LoadFetch = typeof fetch;
+// TODO: unfuck type locations a bit
+export type LoadFetch = typeof fetch;
 
-async function getJson<T>(fetch: LoadFetch, path: string): Promise<T> {
-    const response = await fetch(`${Url}${path}`);
+export async function getJson<T>(
+    fetch: LoadFetch,
+    domain: string,
+    path: string,
+): Promise<T> {
+    const response = await fetch(`${domain}${path}`);
 
     if (!response.ok) {
         throw new Error(` request failed: ${path} ${response.status}`);
     }
 
     return response.json() as Promise<T>;
+}
+
+export function getChangelogs<T>(fetch: LoadFetch, path: string): Promise<T> {
+    return getJson<T>(fetch, MAIN_BACKEND, path);
 }
 
 function normalizeSinglePoint(
@@ -57,51 +67,54 @@ function normalizePointLine(response: PointLineResponse): PointLineResponse {
 
 export async function getCurrent(fetch: LoadFetch) {
     return normalizeSinglePoint(
-        await getJson<SinglePointResponse>(fetch, "/api/bars/current"),
+        await getChangelogs<SinglePointResponse>(fetch, "/api/bars/current"),
     );
 }
 
 export async function getPeakUsers(fetch: LoadFetch) {
     return normalizeSinglePoint(
-        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_users"),
+        await getChangelogs<SinglePointResponse>(fetch, "/api/bars/peak_users"),
     );
 }
 
 export async function getPeakRatio(fetch: LoadFetch) {
     return normalizeSinglePoint(
-        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_ratio"),
+        await getChangelogs<SinglePointResponse>(fetch, "/api/bars/peak_ratio"),
     );
 }
 
 export async function getPeakPercentile(fetch: LoadFetch) {
     return normalizeSinglePoint(
-        await getJson<SinglePointResponse>(fetch, "/api/bars/peak_percentile"),
+        await getChangelogs<SinglePointResponse>(
+            fetch,
+            "/api/bars/peak_percentile",
+        ),
     );
 }
 
 export async function getDayGraph(fetch: LoadFetch) {
     return normalizePointLine(
-        await getJson<PointLineResponse>(fetch, "/api/graphs/day"),
+        await getChangelogs<PointLineResponse>(fetch, "/api/graphs/day"),
     );
 }
 
 export async function getHistoryGraph(fetch: LoadFetch) {
     return normalizePointLine(
-        await getJson<PointLineResponse>(fetch, "/api/graphs/history"),
+        await getChangelogs<PointLineResponse>(fetch, "/api/graphs/history"),
     );
 }
 
 /// A bit dirty but requires Redis to clean up so I cba yet
 export async function getHistoryGraphWeekly(fetch: LoadFetch) {
     return normalizePointLine(
-        await getJson<PointLineResponse>(
+        await getChangelogs<PointLineResponse>(
             fetch,
             "/api/graphs/history?bucket_size=Week",
         ),
     );
 }
 export async function getRatioEstimate(fetch: LoadFetch, percentage: number) {
-    return getJson<RegressionResult>(
+    return getChangelogs<RegressionResult>(
         fetch,
         `/api/graphs/ratio_estimate/${percentage}`,
     );
