@@ -16,6 +16,10 @@
     let graphChart: ChartType | undefined = $state();
     let mounted = $state(false);
 
+    function handleDoubleclick() {
+        graphChart?.resetZoom();
+    }
+
     function createPlot() {
         if (!mounted || graphChart || !chartCanvas?.isConnected) {
             return;
@@ -73,5 +77,5 @@
         <span>Waiting for the chart to load...</span>
     {/if}
 
-    <canvas bind:this={chartCanvas}></canvas>
+    <canvas bind:this={chartCanvas} ondblclick={handleDoubleclick}></canvas>
 </div>
