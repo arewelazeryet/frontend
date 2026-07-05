@@ -25,3 +25,17 @@ export async function getDaily(fetch: LoadFetch): Promise<Bucket[]> {
         "/api/distribution/daily",
     ).then((b) => sortByBucketAscending(b));
 }
+export async function getWeekly(fetch: LoadFetch): Promise<Bucket[]> {
+    return await getJson<Bucket[]>(
+        fetch,
+        USHIO,
+        "/api/distribution/weekly",
+    ).then((b) => sortByBucketAscending(b));
+}
+export async function getMonthly(fetch: LoadFetch): Promise<Bucket[]> {
+    return await getJson<Bucket[]>(
+        fetch,
+        USHIO,
+        "/api/distribution/monthly",
+    ).then((b) => sortByBucketAscending(b));
+}

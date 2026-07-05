@@ -9,7 +9,7 @@
     }: { data: { aggregate: AggregateResponse[]; daily: Bucket[] } } = $props();
 
     let values = $derived(data.aggregate);
-    let daily = $derived(data.daily);
+    let daily = $derived(data);
 </script>
 
 <AggregateChartBase {values} />
