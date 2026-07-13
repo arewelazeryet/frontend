@@ -6,7 +6,6 @@
     let { values } = $props();
 
     let buckets: "daily" | "weekly" | "monthly" = $state("daily");
-    console.log(values);
 </script>
 
 <div class="outer-box">

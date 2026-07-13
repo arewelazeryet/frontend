@@ -3,8 +3,9 @@ import {
     type AggregateResponseRaw,
     fromRaw,
     type AggregateResponse,
+    type BucketRaw,
+    toReadable,
     type Bucket,
-    sortByBucketAscending,
 } from "$utils/types";
 import { getJson, type LoadFetch } from "./backend.server";
 
@@ -19,23 +20,23 @@ export async function getAggregates(
 }
 
 export async function getDaily(fetch: LoadFetch): Promise<Bucket[]> {
-    return await getJson<Bucket[]>(
+    return await getJson<BucketRaw[]>(
         fetch,
         USHIO,
         "/api/distribution/daily",
-    ).then((b) => sortByBucketAscending(b));
+    ).then((b) => b.map(toReadable));
 }
 export async function getWeekly(fetch: LoadFetch): Promise<Bucket[]> {
-    return await getJson<Bucket[]>(
+    return await getJson<BucketRaw[]>(
         fetch,
         USHIO,
         "/api/distribution/weekly",
-    ).then((b) => sortByBucketAscending(b));
+    ).then((b) => b.map(toReadable));
 }
 export async function getMonthly(fetch: LoadFetch): Promise<Bucket[]> {
-    return await getJson<Bucket[]>(
+    return await getJson<BucketRaw[]>(
         fetch,
         USHIO,
         "/api/distribution/monthly",
-    ).then((b) => sortByBucketAscending(b));
+    ).then((b) => b.map(toReadable));
 }

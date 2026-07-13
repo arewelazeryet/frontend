@@ -25,18 +25,25 @@ export function dateOnly(timestamp: number): string {
     });
 }
 
+export type BucketRaw = {
+    stable: number;
+    lazer: number;
+    both: number;
+    bucket: number;
+};
+
 export type Bucket = {
     stable: number;
     lazer: number;
     both: number;
     bucket: string;
 };
-export function sortByBucketAscending(buckets: Bucket[]): Bucket[] {
-    return [...buckets].sort((a, b) => {
-        const startA = parseFloat(a.bucket.split(" - ")[0]);
-        const startB = parseFloat(b.bucket.split(" - ")[0]);
-        return startA - startB;
-    });
+
+export function toReadable(raw: BucketRaw): Bucket {
+    return {
+        ...raw,
+        bucket: `${raw.bucket / 1000000}M - ${raw.bucket / 1000000 + 2}M`,
+    };
 }
 
 /// Raw response type without data casting

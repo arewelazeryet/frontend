@@ -7,6 +7,7 @@ import {
     type AggregateFieldUnion,
     type AggregateResponse,
     type Bucket,
+    type BucketRaw,
 } from "./types";
 
 const milestones = [
@@ -359,7 +360,6 @@ export function makeAggregateConfiguration(
         filteredData = values.filter((entry) => entry.ruleset_id === ruleset);
     } else {
         filteredData = aggregateByClientType(values);
-        console.log(filteredData[0], values[0]);
     }
     const chartTimestamps = getTimestamps(filteredData).map((ts) =>
         Math.floor(ts * 1000),
