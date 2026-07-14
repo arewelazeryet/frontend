@@ -4,7 +4,8 @@
 </script>
 
 <footer class="footer">
-    <FooterLink url="https://github.com/Chiffario" title="github"></FooterLink>
+    <FooterLink url="https://github.com/arewelazeryet" title="github"
+    ></FooterLink>
     <FooterLink url="https://osu.ppy.sh/users/11482346" title="osu"
     ></FooterLink>
     <FooterLink url="https://www.donationalerts.com/r/ch1ffaa" title="donations"

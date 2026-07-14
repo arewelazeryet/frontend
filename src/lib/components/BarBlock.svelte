@@ -1,15 +1,32 @@
 <script lang="ts">
+    import type { Snippet } from "svelte";
     import Bars from "./Bars.svelte";
     import SelfAnchor from "./SelfAnchor.svelte";
 
-    let { lazer, stable, anchor, children } = $props();
+    let {
+        lazer,
+        stable,
+        anchor,
+        wrapped,
+        children,
+    }: {
+        lazer: any;
+        stable: any;
+        anchor: any;
+        wrapped?: any;
+        children: Snippet;
+    } = $props();
 </script>
 
 <div class="bar">
     <SelfAnchor {anchor}>
-        <h3>
+        {#if wrapped !== null}
+            <h3>
+                {@render children()}
+            </h3>
+        {:else}
             {@render children()}
-        </h3>
+        {/if}
     </SelfAnchor>
     <Bars {stable} {lazer} />
 </div>

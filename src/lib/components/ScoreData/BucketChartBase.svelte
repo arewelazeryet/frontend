@@ -2,6 +2,7 @@
     import Segment from "$components/SegmentedControl/Segment.svelte";
     import SegmentedControl from "$components/SegmentedControl/SegmentedControl.svelte";
     import BucketChart from "./BucketChart.svelte";
+    import PieChart from "./PieChart.svelte";
 
     let { values } = $props();
 
@@ -15,12 +16,14 @@
         {/each}
     </SegmentedControl>
     <BucketChart values={values[buckets]} />
+    <PieChart values={values[buckets]} />
 </div>
 
 <style>
     .outer-box {
         display: flex;
         flex-direction: column;
+        align-items: center;
         width: 100%;
     }
 </style>

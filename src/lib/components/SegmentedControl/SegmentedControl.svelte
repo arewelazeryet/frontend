@@ -1,8 +1,5 @@
 <script lang="ts">
     import { setContext } from "svelte";
-    import Segment from "./Segment.svelte";
-    import SegmentedControl from "./SegmentedControl.svelte";
-
     let { value, onChange, children } = $props();
 
     // local reactive state synced with prop
@@ -34,6 +31,7 @@
 <style>
     .segmented-control {
         display: inline-flex;
+        width: fit-content;
         background: light-dark(#1f1d2e, #fffaf3);
         color: light-dark(#e0def4, #575279);
         border-radius: 8px;

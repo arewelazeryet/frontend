@@ -20,10 +20,12 @@
     let {
         values,
         ruleset,
+        humanized_field_name,
         field_name,
     }: {
         values: AggregateResponse[];
         ruleset: "osu" | "taiko" | "mania" | "catch" | "all";
+        humanized_field_name: string;
         field_name: AggregateFieldUnion;
     } = $props();
 
@@ -88,7 +90,7 @@
                 Math.floor(ts * 1000),
             );
 
-            graphChart.options.plugins.title.text = field_name;
+            graphChart.options.plugins.title.text = humanized_field_name;
             graphChart.options.scales.y.max = maxLabelSize(field_name);
 
             graphChart.data.datasets[0].data =

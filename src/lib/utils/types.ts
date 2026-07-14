@@ -86,12 +86,26 @@ export const AggregateFieldList = [
     "daily_sum_pp",
     "daily_sum_total_score",
     "daily_sum_classic_total_score",
-    "daily_sum_legacy_total_score",
     "daily_max_classic_total_score",
-    "daily_max_legacy_total_score",
     "daily_average_accuracy",
     "daily_peak_combo",
 ] as const;
+
+export const HumanizedFieldList = {
+    unique_user_count: "Unique user count",
+    unique_beatmap_count: "Unique played beatmap count",
+    total_daily_scores: "Total submitted scores",
+    daily_scores_with_replays: "Total scores with replays",
+    daily_perfect_combos: "Scores with perfect combo",
+    daily_min_pp: "Minimum pp",
+    daily_max_pp: "Maximum pp",
+    daily_sum_pp: "Total sum of pp",
+    daily_sum_total_score: "Total score sum",
+    daily_sum_classic_total_score: "Classic total score sum",
+    daily_max_classic_total_score: "Max classic total score",
+    daily_average_accuracy: "Average accuracy",
+    daily_peak_combo: "Peak combo",
+};
 
 export type AggregateFieldUnion = (typeof AggregateFieldList)[number];
 
@@ -142,9 +156,6 @@ export function fromRaw(raw: AggregateResponseRaw): AggregateResponse {
         daily_sum_total_score: Number.parseInt(raw.daily_sum_total_score),
         daily_sum_classic_total_score: Number.parseInt(
             raw.daily_sum_classic_total_score,
-        ),
-        daily_sum_legacy_total_score: Number.parseInt(
-            raw.daily_sum_legacy_total_score,
         ),
     };
 }

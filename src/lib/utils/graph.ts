@@ -36,6 +36,45 @@ export function getColors() {
           };
 }
 
+export function getChartTitle(title: string) {
+    const colors = getColors();
+    return {
+        display: true,
+        text: title,
+        color: colors.text,
+        font: {
+            size: 18,
+            weight: "bold" as const,
+        },
+    };
+}
+
+export function getBarPointConfig() {
+    return {
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHitRadius: 15,
+        pointHoverRadius: 5,
+    };
+}
+
+export function getXTickConfig() {
+    const colors = getColors();
+    return {
+        grid: {
+            color: colors.grid,
+            lineWidth: 2,
+            tickColor: colors.border,
+        },
+        ticks: {
+            color: colors.text,
+            padding: 5,
+            maxRotation: 0,
+            maxTicksLimit: 9,
+        },
+    };
+}
+
 function getZoomOptions(is24h: boolean) {
     const colors = getColors();
     const zoomOptions: ZoomPluginOptions = {
@@ -113,10 +152,7 @@ export function makeUserRatioConfiguration(
                     label: "lazer%",
                     data: values,
                     borderColor: "#ff66aa",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
             ],
         },
@@ -139,13 +175,7 @@ export function makeUserRatioConfiguration(
                     },
                 },
                 title: {
-                    display: true,
-                    text: name,
-                    color: colors.text,
-                    font: {
-                        size: 18,
-                        weight: "bold",
-                    },
+                    ...getChartTitle(name),
                 },
                 annotation: {
                     annotations: is24h ? {} : generateAnnotations(),
@@ -256,13 +286,7 @@ export function makeUserCountConfiguration(
                     },
                 },
                 title: {
-                    display: true,
-                    text: name,
-                    color: colors.text,
-                    font: {
-                        size: 18,
-                        weight: "bold",
-                    },
+                    ...getChartTitle(name),
                 },
                 tooltip: {
                     mode: "index",
@@ -336,11 +360,7 @@ export function maxLabelSize(field: AggregateFieldUnion) {
             return undefined;
         case "daily_sum_classic_total_score":
             return undefined;
-        case "daily_sum_legacy_total_score":
-            return undefined;
         case "daily_max_classic_total_score":
-            return undefined;
-        case "daily_max_legacy_total_score":
             return undefined;
         case "daily_average_accuracy":
             return undefined;
@@ -376,10 +396,7 @@ export function makeAggregateConfiguration(
                         .filter((ts) => ts.client_type === "lazer")
                         .map((ts) => ts[field]),
                     borderColor: "#ff66aa",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
                 {
                     label: "stable",
@@ -387,10 +404,7 @@ export function makeAggregateConfiguration(
                         .filter((ts) => ts.client_type === "stable")
                         .map((ts) => ts[field]),
                     borderColor: "#66ccff",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
             ],
         },
@@ -413,13 +427,7 @@ export function makeAggregateConfiguration(
                     },
                 },
                 title: {
-                    display: true,
-                    text: field,
-                    color: colors.text,
-                    font: {
-                        size: 18,
-                        weight: "bold",
-                    },
+                    ...getChartTitle(field),
                 },
                 zoom: getZoomOptions(true),
             },
@@ -443,17 +451,7 @@ export function makeAggregateConfiguration(
                     time: {
                         unit: "month",
                     },
-                    grid: {
-                        color: colors.grid,
-                        lineWidth: 2,
-                        tickColor: colors.border,
-                    },
-                    ticks: {
-                        color: colors.text,
-                        padding: 5,
-                        maxRotation: 0,
-                        maxTicksLimit: 9,
-                    },
+                    ...getXTickConfig(),
                 },
             },
         },
@@ -472,28 +470,19 @@ export function makeBucketConfiguration(values: Bucket[]) {
                     label: "lazer",
                     data: filteredData.map((ts) => ts.lazer),
                     borderColor: "#ff66aa",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
                 {
                     label: "stable",
                     data: filteredData.map((ts) => ts.stable),
                     borderColor: "#66ccff",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
                 {
                     label: "both",
                     data: filteredData.map((ts) => ts.both),
                     borderColor: "#eeffcc",
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHitRadius: 15,
-                    pointHoverRadius: 5,
+                    ...getBarPointConfig(),
                 },
             ],
         },
@@ -547,11 +536,71 @@ export function makeBucketConfiguration(values: Bucket[]) {
                         tickColor: colors.border,
                     },
                     ticks: {
-                        autoSkip: false,
                         color: colors.text,
                         padding: 5,
                         maxRotation: 0,
                         maxTicksLimit: 9,
+                    },
+                },
+            },
+        },
+    };
+}
+
+export function makePieConfiguration(values: Bucket[]) {
+    const totals = values.reduce(
+        (acc, bucket) => {
+            acc.lazer += bucket.lazer;
+            acc.stable += bucket.stable;
+            acc.both += bucket.both;
+            return acc;
+        },
+        { lazer: 0, stable: 0, both: 0 },
+    );
+
+    const colors = getColors();
+
+    return {
+        type: "pie",
+        data: {
+            labels: ["lazer", "stable", "both"],
+            datasets: [
+                {
+                    data: [totals.lazer, totals.stable, totals.both],
+                    backgroundColor: ["#ff66aa", "#66ccff", "#eeffcc"],
+                    borderColor: colors.grid,
+                    borderWidth: 2,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: colors.text,
+                        font: {
+                            size: 14,
+                            weight: "bold" as const,
+                        },
+                    },
+                },
+                title: {
+                    ...getChartTitle("User totals"),
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) => {
+                            const total = (ctx.dataset.data as number[]).reduce(
+                                (a, b) => a + b,
+                                0,
+                            );
+                            const value = ctx.parsed as number;
+                            const pct = ((value / total) * 100).toFixed(1);
+                            return `${ctx.label}: ${value.toLocaleString("en-US")} (${pct}%)`;
+                        },
                     },
                 },
             },

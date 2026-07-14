@@ -74,7 +74,10 @@
     <meta property="og:type" content="website" />
     {#if changelogs}
         <meta property="og:description" content={opengraphHeader()} />
-        <meta property="og:image" content="https://areweimageyet.chiffa.lol/signature.png" />
+        <meta
+            property="og:image"
+            content="https://areweimageyet.chiffa.lol/signature.png"
+        />
     {/if}
 </svelte:head>
 
@@ -88,10 +91,14 @@
                     anchor="current"
                     stable={changelogs.stable}
                     lazer={changelogs.lazer}
+                    wrapped
                 >
-                    current (as of {date(changelogs.timestamp)})
+                    <h3 style="margin: 0;">
+                        current user counts (as of {date(changelogs.timestamp)})
+                    </h3>
                 </BarBlock>
             {/if}
+            <h2>Historic values</h2>
             {#if peak}
                 <BarBlock
                     anchor="peak_user"
@@ -161,7 +168,7 @@
         text-align: center;
     }
 
-    :root {
+    :global(:root) {
         font-family: "Nunito Sans", sans-serif;
         font-optical-sizing: auto;
         font-style: normal;
@@ -224,6 +231,10 @@
         .graphs {
             width: 1400px;
         }
+    }
+
+    input {
+        appearance: none;
     }
 
     @media (prefers-color-scheme: light) {
