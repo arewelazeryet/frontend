@@ -180,7 +180,7 @@
         border: 2px solid white;
         border-radius: 50%;
         height: 20px;
-        opacity: 0;
+        /*opacity: 0;*/
         width: 20px;
     }
 
