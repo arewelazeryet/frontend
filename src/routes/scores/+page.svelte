@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Footer from "$components/Footer.svelte";
     import AggregateChartBase from "$components/ScoreData/AggregateChartBase.svelte";
     import BucketChart from "$components/ScoreData/BucketChart.svelte";
     import BucketChartBase from "$components/ScoreData/BucketChartBase.svelte";
@@ -51,9 +50,6 @@
         <BucketChartBase values={daily} />
     </div>
 
-    <div class="contents">
-        <Footer />
-    </div>
 </div>
 
 <style>

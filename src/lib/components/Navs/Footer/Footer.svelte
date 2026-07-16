@@ -16,7 +16,8 @@
 <style>
     .footer {
         display: flex;
-        width: 100%;
+        width: 50%;
+        transform: translateX(50%);
         flex-direction: row;
         justify-content: space-around;
         padding-top: 40px;

@@ -1,8 +1,13 @@
 <script lang="ts">
+    import Footer from '$components/Navs/Footer/Footer.svelte';
+    import Header from '$components/Navs/Header/Header.svelte';
+
     let { children } = $props();
 </script>
 
+<Header />
 {@render children()}
+<Footer />
 
 <style>
     @media (prefers-color-scheme: light) {

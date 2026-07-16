@@ -1,7 +1,6 @@
 <script lang="ts">
     import { invalidate } from "$app/navigation";
     import BarBlock from "$components/BarBlock.svelte";
-    import Footer from "$components/Footer.svelte";
     import MilestoneList from "$components/MilestoneList.svelte";
     import { onMount } from "svelte";
     import GraphSet from "$components/GraphSet.svelte";
@@ -157,7 +156,6 @@
             </SelectableGraphSet>
         </div>
         <MilestoneList />
-        <Footer />
     </div>
 </div>
 
